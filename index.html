@@ -1,41 +1,672 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout Page</title>
-    <style>
-        body {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            font-family: Arial, sans-serif;
-            color: #333;
-        }
-        .checkout-container {
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            transition: transform 0.3s ease;
-        }
-        .checkout-container:hover {
-            transform: translateY(-5px);
-        }
-        h1 {
-            text-align: center;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Loupa - Creative and professional digital solutions including web development, design, video editing, and online courses." />
+  <title>Loupa — Everything Online</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Root Variables */
+    :root {
+      --accent: #ff6600;
+      --accent-hover: #ff8533;
+      --accent-dark: #e65c00;
+      --dark: #222;
+      --light: #f9f9f9;
+      --muted: #666;
+      --border: #eee;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Reset & Global Styles */
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    /* Typography */
+    h1, h2, h3 {
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
+    h2 { font-size: clamp(1.75rem, 4vw, 2.5rem); }
+    h3 { font-size: 1.25rem; }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+      color: white;
+      text-align: center;
+      padding: clamp(3rem, 8vw, 5rem) 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.1), transparent);
+      pointer-events: none;
+    }
+
+    header > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    header h1 {
+      margin: 0 0 0.5rem 0;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      margin: 0.5rem 0 2rem 0;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    /* Navigation */
+    nav {
+      background: var(--dark);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      transition: var(--transition);
+      display: block;
+    }
+
+    nav a:hover,
+    nav a:focus {
+      background: var(--accent);
+      color: white;
+    }
+
+    nav a:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Sections */
+    section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: clamp(2rem, 6vw, 4rem) 1.5rem;
+    }
+
+    section h2 {
+      text-align: center;
+      color: var(--accent);
+      margin-bottom: 3rem;
+      position: relative;
+      padding-bottom: 1rem;
+    }
+
+    section h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    /* Grid Layouts */
+    .services,
+    .portfolio,
+    .pricing {
+      display: grid;
+      gap: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .portfolio {
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    /* Cards */
+    .service,
+    .portfolio-item,
+    .plan {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .service:hover,
+    .portfolio-item:hover,
+    .plan:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .service h3,
+    .plan h3 {
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+      color: var(--dark);
+    }
+
+    .service p {
+      flex: 1;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .portfolio-item {
+      min-height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: linear-gradient(135deg, var(--light), white);
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .plan {
+      text-align: center;
+      border-color: var(--border);
+      position: relative;
+    }
+
+    .plan.featured {
+      border-color: var(--accent);
+      border-width: 2px;
+      transform: scale(1.05);
+    }
+
+    .plan.featured::before {
+      content: 'POPULAR';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: white;
+      padding: 0.25rem 1rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .plan h3,
+    .plan p {
+      text-align: center;
+    }
+
+    .plan p:last-of-type {
+      color: var(--dark);
+    }
+
+    .plan strong {
+      font-size: 2rem;
+      color: var(--accent);
+    }
+
+    /* Links & Buttons */
+    a,
+    button {
+      font-family: inherit;
+    }
+
+    .service a,
+    .plan a {
+      display: inline-block;
+      margin-top: auto;
+    }
+
+    .cta {
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .btn,
+    .cta a,
+    .cta button,
+    .service a,
+    .plan a {
+      background: var(--accent);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1rem;
+      transition: var(--transition);
+      border: 2px solid var(--accent);
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    .btn:hover,
+    .cta a:hover,
+    .cta button:hover,
+    .service a:hover,
+    .plan a:hover {
+      background: var(--accent-dark);
+      border-color: var(--accent-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 102, 0, 0.3);
+    }
+
+    .btn:focus,
+    .cta a:focus,
+    .cta button:focus,
+    .service a:focus,
+    .plan a:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .btn:active,
+    .cta a:active,
+    .cta button:active,
+    .service a:active,
+    .plan a:active {
+      transform: translateY(0);
+    }
+
+    /* Form */
+    form {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    input,
+    textarea {
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.1);
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #999;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    form button {
+      padding: 1rem 2rem;
+      border: none;
+    }
+
+    .form-message {
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 600;
+      display: none;
+      margin-bottom: 1rem;
+    }
+
+    .form-message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+
+    .form-message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: white;
+      text-align: center;
+      padding: 3rem 1rem;
+      margin-top: 4rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    footer p {
+      color: inherit;
+      margin: 0.5rem 0;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Animations */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: reveal 0.8s ease forwards;
+    }
+
+    @keyframes reveal {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Stagger animation for multiple elements */
+    .reveal:nth-child(1) { animation-delay: 0.1s; }
+    .reveal:nth-child(2) { animation-delay: 0.2s; }
+    .reveal:nth-child(3) { animation-delay: 0.3s; }
+    .reveal:nth-child(4) { animation-delay: 0.4s; }
+
+    /* Accessibility */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      nav ul {
+        justify-content: flex-start;
+        gap: 0.25rem;
+      }
+
+      nav a {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+      }
+
+      .services,
+      .portfolio,
+      .pricing {
+        grid-template-columns: 1fr;
+      }
+
+      .plan.featured {
+        transform: scale(1);
+      }
+
+      section {
+        padding: 2rem 1rem;
+      }
+
+      .cta a,
+      .cta button {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="checkout-container">
-        <h1>Secure Checkout</h1>
-        <p>Implementing an advanced payment security system with IP verification and fraud protection.</p>
-        <p>Enjoy a smooth checkout experience with professional design and glassmorphism elements.</p>
-        <form action="/submit-payment" method="POST">
-            <label for="card-info">Credit Card Information:</label>
-            <input type="text" id="card-info" name="card-info" required>
-            <br><br>
-            <input type="submit" value="Pay Now">
-        </form>
+  <header>
+    <h1>Loupa</h1>
+    <p>Everything Online, Creative & Professional</p>
+    <div class="cta">
+      <a href="#services">Explore Services</a>
     </div>
+  </header>
+
+  <nav aria-label="Main Navigation">
+    <ul>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#portfolio">Portfolio</a></li>
+      <li><a href="#courses">Courses</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <section id="services">
+    <h2>Our Services</h2>
+    <div class="services">
+      <div class="service reveal">
+        <h3>Programming Courses</h3>
+        <p>Learn web development, Python, and more with our comprehensive online courses designed for all skill levels.</p>
+        <a href="https://paypal.me/wahdkhona/50">Buy Course — $50</a>
+      </div>
+      <div class="service reveal">
+        <h3>Logo Design</h3>
+        <p>Creative and custom logos that represent your brand's identity and make a lasting impression.</p>
+        <a href="https://paypal.me/wahdkhona/30">Order Logo — $30</a>
+      </div>
+      <div class="service reveal">
+        <h3>Video & Photo Editing</h3>
+        <p>Professional editing for videos, photos, and audio to bring your creative vision to life.</p>
+        <a href="https://paypal.me/wahdkhona/40">Order Editing — $40</a>
+      </div>
+      <div class="service reveal">
+        <h3>Digital Solutions</h3>
+        <p>Custom websites, automation scripts, and expert consulting services for your business needs.</p>
+        <a href="https://paypal.me/wahdkhona/100">Hire Us — $100</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="portfolio">
+    <h2>Portfolio</h2>
+    <div class="portfolio">
+      <div class="portfolio-item reveal">Logo for Startup</div>
+      <div class="portfolio-item reveal">Web App Project</div>
+      <div class="portfolio-item reveal">Video Editing Showcase</div>
+      <div class="portfolio-item reveal">Social Media Graphics</div>
+    </div>
+  </section>
+
+  <section id="courses">
+    <h2>Courses</h2>
+    <div class="services">
+      <div class="service reveal">
+        <h3>Web Development Bootcamp</h3>
+        <p>Learn HTML, CSS, JavaScript, and build real-world projects from scratch with hands-on experience.</p>
+        <a href="https://paypal.me/wahdkhona/75">Enroll — $75</a>
+      </div>
+      <div class="service reveal">
+        <h3>Python for Beginners</h3>
+        <p>Master Python basics, fundamentals, and start your coding journey with practical exercises.</p>
+        <a href="https://paypal.me/wahdkhona/60">Enroll — $60</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <h2>Pricing Plans</h2>
+    <div class="pricing">
+      <div class="plan reveal">
+        <h3>Starter</h3>
+        <p>Perfect for individuals and small projects.</p>
+        <p><strong>$50</strong></p>
+        <a href="https://paypal.me/wahdkhona/50">Choose Starter</a>
+      </div>
+      <div class="plan reveal featured">
+        <h3>Professional</h3>
+        <p>Ideal for growing businesses and advanced needs.</p>
+        <p><strong>$150</strong></p>
+        <a href="https://paypal.me/wahdkhona/150">Choose Professional</a>
+      </div>
+      <div class="plan reveal">
+        <h3>Enterprise</h3>
+        <p>Custom solutions tailored to your large projects.</p>
+        <p><strong>Custom</strong></p>
+        <a href="https://paypal.me/wahdkhona">Contact Sales</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2>Contact Us</h2>
+    <div class="form-message" id="formMessage"></div>
+    <form class="reveal" id="contactForm" method="POST" action="https://formspree.io/f/mpwqzqpn" aria-label="Contact form">
+      <input type="text" name="name" placeholder="Your Name" required aria-label="Your name">
+      <input type="email" name="email" placeholder="Your Email" required aria-label="Your email address">
+      <textarea name="message" placeholder="Your Message" required aria-label="Your message"></textarea>
+      <button type="submit" id="submitBtn">Send Message</button>
+    </form>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 Loupa. All rights reserved.</p>
+    <p>Pay securely via <a href="https://paypal.me/wahdkhona">PayPal</a></p>
+  </footer>
+
+  <script>
+    // Reveal animations using Intersection Observer
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.style.animation = 'reveal 0.8s ease forwards';
+          }, 50);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    reveals.forEach((el) => {
+      observer.observe(el);
+    });
+
+    // Form submission handler with Formspree
+    const form = document.getElementById('contactForm');
+    const formMessage = document.getElementById('formMessage');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+
+        try {
+          const formData = new FormData(form);
+          const response = await fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+
+          if (response.ok) {
+            formMessage.textContent = '✅ Message sent successfully! We\'ll get back to you soon.';
+            formMessage.classList.remove('error');
+            formMessage.classList.add('success');
+            form.reset();
+            
+            setTimeout(() => {
+              submitBtn.textContent = originalText;
+              submitBtn.disabled = false;
+              formMessage.classList.remove('success');
+              formMessage.style.display = 'none';
+            }, 5000);
+          } else {
+            throw new Error('Form submission failed');
+          }
+        } catch (error) {
+          formMessage.textContent = '❌ Error sending message. Please try again.';
+          formMessage.classList.remove('success');
+          formMessage.classList.add('error');
+          
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+        }
+      });
+    }
+  </script>
 </body>
 </html>
