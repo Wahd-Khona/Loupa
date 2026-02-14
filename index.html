@@ -1,1 +1,16 @@
-<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Document</title>\n    <script>\n        function handleFormSubmit(event) {\n            event.preventDefault();\n            const form = event.target;\n            const feedback = document.getElementById('feedback');\n            feedback.innerText = 'Submitting...';\n            const formData = new FormData(form);\n            fetch(form.action, {\n                method: 'POST',\n                body: formData,\n            })\n            .then(response => {\n                if (response.ok) {\n                    feedback.innerText = 'Thank you for your submission!';\n                } else {\n                    feedback.innerText = 'There was a problem with your submission.';\n                }\n            })\n            .catch(error => {\n                feedback.innerText = 'There was a problem with your submission.';\n                console.error('Error:', error);\n            });\n        }\n    </script>\n</head>\n<body>\n    <form action="https://formspree.io/f/wahdkhona@proton.me" method="POST" onsubmit="handleFormSubmit(event)">\n        <input type="text" name="name" required placeholder="Your Name">\n        <input type="email" name="email" required placeholder="Your Email">\n        <textarea name="message" required placeholder="Your Message"></textarea>\n        <button type="submit">Submit</button>\n    </form>\n    <div id="feedback"></div>\n</body>\n</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Contact Us</h1>
+    <form action="https://formspree.io/f/{YOUR_FORM_ID}" method="POST">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <button type="submit">Send</button>
+    </form>
+</body>
+</html>
