@@ -29,7 +29,7 @@
     html, body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; overflow-x: hidden; scroll-behavior: smooth; }
     h1, h2, h3, .brand { font-family: 'Space Grotesk', sans-serif; }
 
-    /* --- Elite Admin Terminal (Shift + A) --- */
+    /* --- Admin Terminal --- */
     #admin-panel {
       position: fixed; inset: 0; background: rgba(5,5,5,0.98); z-index: 10001;
       display: none; padding: 4rem; overflow-y: auto; font-family: 'JetBrains Mono', monospace;
@@ -45,35 +45,27 @@
     td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.02); }
     .btn-admin-small { background: var(--accent); border: none; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; }
 
-    /* --- Auth Overlay --- */
+    /* --- UI Modules --- */
     #auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 10000; display: flex; justify-content: center; align-items: center; }
-    
-    /* --- Visual Assets --- */
     #cursor { position: fixed; top: 0; left: 0; width: 20px; height: 20px; border: 1px solid white; border-radius: 50%; pointer-events: none; z-index: 10002; transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s; mix-blend-mode: difference; }
     #cursor-glow { position: fixed; top: 0; left: 0; width: 400px; height: 400px; background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%); transform: translate(-50%, -50%); pointer-events: none; z-index: 0; opacity: 0.15; }
     #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 
-    /* --- Nav & Headers --- */
     nav { position: fixed; top: 0; width: 100%; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
     .brand { font-weight: 700; font-size: 1.5rem; letter-spacing: -1px; text-decoration: none; color: white; }
     .brand span { color: var(--accent); }
     .user-pill { display: flex; align-items: center; gap: 10px; background: var(--glass); padding: 5px 12px; border-radius: 50px; border: 1px solid var(--border); font-size: 0.8rem; }
     
-    /* --- Review Section Styling --- */
     .review-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 4rem; margin-top: 4rem; }
-    .review-card { background: var(--glass); border: 1px solid var(--border); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; transition: 0.3s; }
-    .review-card:hover { border-color: var(--accent); background: var(--glass-hover); }
-    .stars { color: var(--accent); margin-bottom: 0.5rem; letter-spacing: 2px; }
+    .review-card { background: var(--glass); border: 1px solid var(--border); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; }
+    .stars { color: var(--accent); margin-bottom: 0.5rem; }
     
-    /* --- Existing UI Elements --- */
     section { padding: 8rem 2rem; max-width: 1400px; margin: 0 auto; }
-    .btn { padding: 1rem 2rem; border-radius: 4px; text-decoration: none; font-weight: 600; font-family: 'Space Grotesk'; transition: 0.3s var(--ease); border: 1px solid transparent; display: inline-block; }
+    .btn { padding: 1rem 2rem; border-radius: 4px; text-decoration: none; font-weight: 600; font-family: 'Space Grotesk'; transition: 0.3s var(--ease); border: 1px solid transparent; display: inline-block; text-align: center; }
     .btn-primary { background: var(--accent); color: white; box-shadow: 0 0 20px var(--accent-glow); }
     .btn-secondary { background: transparent; border-color: var(--border); color: white; }
     .reveal { opacity: 0; transform: translateY(30px); transition: 0.8s var(--ease); }
     .reveal.active { opacity: 1; transform: translateY(0); }
-
-    @media (max-width: 900px) { .review-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -85,11 +77,11 @@
   <div id="admin-panel">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem">
       <h2 style="color:var(--accent)">[SYSTEM_CORE_ADMIN]</h2>
-      <button onclick="toggleAdmin()" class="btn btn-secondary" style="padding: 0.5rem 1rem;">EXIT_ESC</button>
+      <button onclick="toggleAdmin()" class="btn btn-secondary">EXIT_ESC</button>
     </div>
     <div class="admin-grid">
       <div class="stat-box"><h4>TOTAL_USERS</h4><p id="adm-users">0</p></div>
-      <div class="stat-box"><h4>TOTAL_REV</h4><p id="adm-rev">$0</p></div>
+      <div class="stat-box"><h4>REVENUE</h4><p id="adm-rev">$0</p></div>
       <div class="stat-box"><h4>ACTIVE_IPS</h4><p id="adm-ips">1</p></div>
       <div class="stat-box"><h4>CONV_RATE</h4><p id="adm-conv">0%</p></div>
     </div>
@@ -100,10 +92,10 @@
   </div>
 
   <div id="auth-overlay">
-    <div class="glass-box" style="padding: 4rem; border: 1px solid var(--border); border-radius: 20px; text-align: center;">
+    <div style="padding: 4rem; border: 1px solid var(--border); border-radius: 20px; text-align: center; background: rgba(255,255,255,0.01);">
       <h1 class="brand">LOUPA<span>.</span></h1>
       <p style="color: var(--text-muted); margin-bottom: 2rem;">INITIALIZE SECURE SESSION</p>
-      <button onclick="handleLogin()" class="btn btn-primary hover-trigger">SIGN IN WITH GOOGLE</button>
+      <button onclick="handleLogin()" class="btn btn-primary">SIGN IN WITH GOOGLE</button>
     </div>
   </div>
 
@@ -121,25 +113,25 @@
   <div id="main-content" style="display:none">
     <header>
       <div class="reveal">
-        <div class="hero-label">Github Portfolio V.2.0</div>
-        <h1>WE BUILD <br> <span id="typewriter" style="color: var(--accent);"></span></h1>
-        <p>Loupa is a digital foundry. We forge code, design, and strategy into scalable digital assets.</p>
-        <div class="btn-group" style="margin-top:2rem; display:flex; gap:15px;">
-          <a href="#pricing" class="btn btn-primary hover-trigger">Purchase Access</a>
-          <a href="#reviews" class="btn btn-secondary hover-trigger">View Feedback</a>
+        <div style="color:var(--accent); letter-spacing:2px; font-size:0.8rem; margin-bottom:1rem">SECURE PORTFOLIO V.2.0</div>
+        <h1 style="font-size: clamp(3rem, 8vw, 6rem); line-height: 1;">WE BUILD <br> <span id="typewriter" style="color: var(--accent);"></span></h1>
+        <p style="max-width: 500px; color: var(--text-muted); line-height: 1.6;">Digital foundry forging code into scalable assets. Professional automation and system architecture.</p>
+        <div style="margin-top:2rem; display:flex; gap:15px;">
+          <a href="#pricing" class="btn btn-primary">Start Project</a>
+          <a href="#reviews" class="btn btn-secondary">Client Reviews</a>
         </div>
       </div>
     </header>
 
     <section id="pricing">
-      <div class="card reveal hover-trigger" style="max-width:500px; margin: 0 auto; text-align: center; border-color: var(--accent);">
+      <div class="reveal" style="max-width:500px; margin: 0 auto; text-align: center; border: 1px solid var(--accent); padding: 3rem; border-radius: 20px; background: var(--glass);">
         <div id="pay-status" style="font-size:0.7rem; color:var(--text-muted); margin-bottom:1rem;">STATUS: ACTION_REQUIRED</div>
         <h3>Python Automation Vault</h3>
         <h2 id="product-price" style="font-size:3rem; margin:1rem 0;">$49.00</h2>
         <div id="paypal-container"></div>
-        <div id="unlocked-content" style="display:none; border: 1px dashed var(--accent); padding: 2rem;">
-          <p>✅ ACCESS GRANTED</p>
-          <a href="#" class="btn btn-primary">DOWNLOAD_VAULT.ZIP</a>
+        <div id="unlocked-content" style="display:none;">
+          <p>🔓 ACCESS GRANTED</p>
+          <a href="YOUR_LINK_HERE" class="btn btn-primary" style="width:100%">DOWNLOAD_VAULT.ZIP</a>
         </div>
       </div>
     </section>
@@ -149,75 +141,50 @@
         <h2>Reputation</h2>
         <div style="width: 60px; height: 2px; background: var(--accent); margin-top: 1rem;"></div>
       </div>
-      
       <div class="review-grid reveal">
         <div>
           <div style="font-size: 5rem; font-weight: 700; color: var(--accent);" id="avg-val">4.3</div>
           <div class="stars">★★★★★</div>
-          <p id="total-count" style="color: var(--text-muted);">Based on 152 reviews</p>
-          
-          <div class="card" style="margin-top: 2rem; padding: 1.5rem;">
-            <h4>Leave a Review</h4>
+          <p id="total-count" style="color: var(--text-muted);">Based on 152 verified clients</p>
+          <div style="margin-top: 2rem; padding: 1.5rem; border: 1px solid var(--border); border-radius: 12px;">
+            <h4>Add Review</h4>
             <select id="rev-stars" style="width:100%; background:black; color:white; border:1px solid var(--border); padding:10px; margin: 10px 0;">
-              <option value="5">5 Stars - Elite</option>
-              <option value="4">4 Stars - Solid</option>
-              <option value="3">3 Stars - Average</option>
-              <option value="2">2 Stars - Weak</option>
-              <option value="1">1 Star - Poor</option>
+              <option value="5">★★★★★</option><option value="4">★★★★☆</option><option value="3">★★★☆☆</option>
             </select>
-            <textarea id="rev-text" placeholder="Transmission..." style="width:100%; background:black; color:white; border:1px solid var(--border); padding:10px;"></textarea>
-            <button onclick="postReview()" class="btn btn-primary" style="width:100%; margin-top:10px; font-size:0.8rem;">POST_REVIEW</button>
+            <textarea id="rev-text" placeholder="Transmission..." style="width:100%; background:black; color:white; border:1px solid var(--border); padding:10px; height: 80px;"></textarea>
+            <button onclick="postReview()" class="btn btn-primary" style="width:100%; margin-top:10px;">POST</button>
           </div>
         </div>
-
         <div id="live-reviews-container">
-          <div class="review-card">
-            <div class="stars">★★★★★</div>
-            <p>"The best automation logic I've seen in years. Saved me weeks of work."</p>
-            <small style="color:var(--accent)">- Verified Architect</small>
-          </div>
-          <div class="review-card">
-            <div class="stars">★★★★☆</div>
-            <p>"Documentation is a bit sparse, but the code quality is 10/10."</p>
-            <small style="color:var(--accent)">- DevOps Lead</small>
-          </div>
+           <div class="review-card"><div class="stars">★★★★★</div><p>"Code is clean, efficient, and perfectly structured."</p><small>- Verified Buyer</small></div>
         </div>
       </div>
     </section>
-
-    <footer>
-      <p>LOUPA SYSTEMS &copy; 2026. ALL RIGHTS RESERVED.</p>
-    </footer>
   </div>
 
   <script>
-    // --- 🔥 ELITE CONFIGURATION ---
-    const ADMIN_EMAIL = "your-email@gmail.com"; 
+    // --- 🔥 YOUR CONFIGURATION ---
+    const ADMIN_EMAIL = "wahdkhonafdar@gmail.com"; 
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_ID.firebaseapp.com",
-      projectId: "YOUR_ID",
-      storageBucket: "YOUR_ID.appspot.com",
-      messagingSenderId: "YOUR_SENDER",
-      appId: "YOUR_APP"
+      apiKey: "AIzaSyDwkqu_JpelnceEjwbdP76hzwQ1JMFI2D0",
+      authDomain: "loupa-d2ca2.firebaseapp.com",
+      projectId: "loupa-d2ca2",
+      storageBucket: "loupa-d2ca2.firebasestorage.app",
+      messagingSenderId: "1062889452519",
+      appId: "1:1062889452519:web:a412e262ba0981d3c3c342"
     };
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // --- 1. AUTH & IP TRACKING ---
     async function handleLogin() {
       const provider = new firebase.auth.GoogleAuthProvider();
       const res = await auth.signInWithPopup(provider);
       const ipRes = await fetch('https://api.ipify.org?format=json');
       const ipData = await ipRes.json();
-      
       await db.collection("users").doc(res.user.uid).set({
-        name: res.user.displayName,
-        email: res.user.email,
-        ip: ipData.ip,
-        lastSeen: new Date()
+        name: res.user.displayName, email: res.user.email, ip: ipData.ip, lastSeen: new Date()
       }, { merge: true });
     }
 
@@ -225,13 +192,10 @@
       if(user) {
         document.getElementById('auth-overlay').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
-        document.getElementById('u-name').innerText = user.displayName.toUpperCase();
-        
+        document.getElementById('u-name').innerText = user.displayName.split(' ')[0].toUpperCase();
         if(user.email === ADMIN_EMAIL) document.getElementById('admin-indicator').style.display = 'block';
-
         const doc = await db.collection("users").doc(user.uid).get();
-        if(doc.exists && doc.data().hasPaid) unlockProduct();
-        else initPaypal();
+        if(doc.exists && doc.data().hasPaid) unlockProduct(); else initPaypal();
         loadReviews();
       } else {
         document.getElementById('auth-overlay').style.display = 'flex';
@@ -239,7 +203,6 @@
       }
     });
 
-    // --- 2. ADMIN PANEL LOGIC (Shift + A) ---
     window.addEventListener('keydown', e => {
       if(e.shiftKey && e.key === 'A' && auth.currentUser.email === ADMIN_EMAIL) toggleAdmin();
       if(e.key === 'Escape') document.getElementById('admin-panel').style.display = 'none';
@@ -247,40 +210,33 @@
 
     function toggleAdmin() {
       const p = document.getElementById('admin-panel');
-      const isVisible = p.style.display === 'block';
-      p.style.display = isVisible ? 'none' : 'block';
-      if(!isVisible) refreshAdmin();
+      p.style.display = p.style.display === 'block' ? 'none' : 'block';
+      if(p.style.display === 'block') refreshAdmin();
     }
 
     async function refreshAdmin() {
       const snap = await db.collection("users").get();
       const list = document.getElementById('adm-user-list');
-      list.innerHTML = '';
-      let paid = 0;
+      list.innerHTML = ''; let paid = 0;
       snap.forEach(doc => {
-        const d = doc.data();
-        if(d.hasPaid) paid++;
+        const d = doc.data(); if(d.hasPaid) paid++;
         list.innerHTML += `<tr><td>${d.name}</td><td>${d.email}</td><td>${d.ip}</td><td>${d.hasPaid ? 'PAID':'PENDING'}</td>
-        <td><button onclick="grant('${doc.id}')" class="btn-admin-small">UNLOCK</button></td></tr>`;
+        <td><button onclick="grant('${doc.id}')" class="btn-admin-small">GRANT</button></td></tr>`;
       });
       document.getElementById('adm-users').innerText = snap.size;
       document.getElementById('adm-rev').innerText = `$${paid * 49}`;
-      document.getElementById('adm-conv').innerText = ((paid/snap.size)*100).toFixed(1)+'%';
     }
 
     async function grant(uid) {
-      await db.collection("users").doc(uid).update({hasPaid: true});
-      refreshAdmin();
+      await db.collection("users").doc(uid).update({hasPaid: true}); refreshAdmin();
     }
 
-    // --- 3. PAYPAL & CONTENT ---
     function initPaypal() {
       if (document.getElementById('paypal-container').children.length > 0) return;
       paypal.Buttons({
         createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '49.00' } }] }),
         onApprove: (d, a) => a.order.capture().then(async () => {
-          await db.collection("users").doc(auth.currentUser.uid).update({hasPaid: true});
-          unlockProduct();
+          await db.collection("users").doc(auth.currentUser.uid).update({hasPaid: true}); unlockProduct();
         })
       }).render('#paypal-container');
     }
@@ -289,75 +245,57 @@
       document.getElementById('paypal-container').style.display = 'none';
       document.getElementById('product-price').style.display = 'none';
       document.getElementById('unlocked-content').style.display = 'block';
-      document.getElementById('pay-status').innerText = "STATUS: LIFETIME_ACCESS_ACTIVE";
+      document.getElementById('pay-status').innerText = "STATUS: ACCESS_ACTIVE";
       document.getElementById('pay-status').style.color = "var(--accent)";
     }
 
-    // --- 4. REVIEW MATH (152 START / 4.3 AVG) ---
     let bCount = 152; let bSum = 654; 
     async function loadReviews() {
       const meta = await db.collection("stats").doc("reviews").get();
       let t = bCount, s = bSum;
       if(meta.exists) { t += meta.data().count; s += meta.data().sum; }
       document.getElementById('avg-val').innerText = (s/t).toFixed(1);
-      document.getElementById('total-count').innerText = `Based on ${t} reviews`;
-      
+      document.getElementById('total-count').innerText = `Based on ${t} verified clients`;
       const rSnap = await db.collection("reviews").orderBy("time", "desc").limit(5).get();
       rSnap.forEach(d => {
         const data = d.data();
         document.getElementById('live-reviews-container').insertAdjacentHTML('afterbegin', 
-        `<div class="review-card"><div class="stars">${"★".repeat(data.stars)}</div><p>${data.text}</p><small style="color:var(--accent)">- ${data.name}</small></div>`);
+        `<div class="review-card"><div class="stars">${"★".repeat(data.stars)}</div><p>${data.text}</p><small>- ${data.name}</small></div>`);
       });
     }
 
     async function postReview() {
       const stars = parseInt(document.getElementById('rev-stars').value);
-      const text = document.getElementById('rev-text').value;
-      if(!text) return;
+      const text = document.getElementById('rev-text').value; if(!text) return;
       await db.collection("reviews").add({ name: auth.currentUser.displayName, stars, text, time: new Date() });
       await db.collection("stats").doc("reviews").set({ count: firebase.firestore.FieldValue.increment(1), sum: firebase.firestore.FieldValue.increment(stars) }, { merge: true });
       location.reload();
     }
 
-    // --- 5. VISUAL EFFECTS (Particles & Cursor) ---
+    // --- Visuals ---
     const canvas = document.getElementById('canvas-bg');
     const ctx = canvas.getContext('2d');
     let width, height, particles = [];
     function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
-
     class Particle {
       constructor() { this.x = Math.random()*width; this.y = Math.random()*height; this.vx = (Math.random()-0.5)*0.5; this.vy = (Math.random()-0.5)*0.5; }
       update() { this.x += this.vx; this.y += this.vy; if(this.x<0||this.x>width) this.vx*=-1; if(this.y<0||this.y>height) this.vy*=-1; }
-      draw() { ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.beginPath(); ctx.arc(this.x, this.y, 1, 0, Math.PI*2); ctx.fill(); }
+      draw() { ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.arc(this.x, this.y, 1, 0, Math.PI*2); ctx.fill(); }
     }
     for(let i=0; i<60; i++) particles.push(new Particle());
-    function animate() {
-      ctx.clearRect(0,0,width,height);
-      particles.forEach(p => { p.update(); p.draw(); });
-      requestAnimationFrame(animate);
-    }
+    function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
     animate();
-
-    const cursor = document.getElementById('cursor');
-    const glow = document.getElementById('cursor-glow');
     document.addEventListener('mousemove', e => {
-      cursor.style.left = e.clientX+'px'; cursor.style.top = e.clientY+'px';
-      glow.style.left = e.clientX+'px'; glow.style.top = e.clientY+'px';
+      document.getElementById('cursor').style.left = e.clientX+'px'; document.getElementById('cursor').style.top = e.clientY+'px';
+      document.getElementById('cursor-glow').style.left = e.clientX+'px'; document.getElementById('cursor-glow').style.top = e.clientY+'px';
     });
-
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
-    }, { threshold: 0.1 });
+    const observer = new IntersectionObserver(entries => { entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); }); }, { threshold: 0.1 });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-    // Typewriter
-    const textElement = document.getElementById('typewriter');
     const words = ["THE DIGITAL FUTURE", "ROBUST CODE", "CREATIVE SYSTEMS"];
     let wIdx = 0, cIdx = 0, isDel = false;
     function type() {
-      const cur = words[wIdx];
-      textElement.textContent = isDel ? cur.substring(0, cIdx--) : cur.substring(0, cIdx++);
+      const cur = words[wIdx]; document.getElementById('typewriter').textContent = isDel ? cur.substring(0, cIdx--) : cur.substring(0, cIdx++);
       if(!isDel && cIdx > cur.length) { isDel = true; setTimeout(type, 2000); }
       else if(isDel && cIdx === 0) { isDel = false; wIdx = (wIdx+1)%words.length; setTimeout(type, 500); }
       else setTimeout(type, isDel ? 50 : 100);
