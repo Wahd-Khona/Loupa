@@ -3,311 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LOUPA // TITAN_SYSTEM_v11</title>
+    <title>LOUPA // SECURE_TITAN_v12.5</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@100;400;700&family=Inter:wght@200;400;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700;900&family=JetBrains+Mono:wght@100;400;700&family=Inter:wght@200;400;700&display=swap" rel="stylesheet">
 
     <style>
-        /* LOUPA DIGITAL ARCHITECTURE - v11.0.0 "TITAN"
-           ENGINEERED BY GEMINI 3 FLASH | 2026
-           STRICTLY CONFIDENTIAL - INTERNAL USE ONLY
-        */
-
         :root {
-            --bg: #030303;
-            --surface: #0a0a0a;
-            --elevated: #111111;
+            --bg: #010101;
+            --surface: #080808;
+            --elevated: #111;
             --accent: #ff5500;
-            --accent-glow: rgba(255, 85, 0, 0.3);
+            --accent-soft: rgba(255, 85, 0, 0.15);
             --text-main: #ffffff;
-            --text-dim: #666666;
+            --text-dim: #555555;
             --success: #00ffaa;
-            --warning: #ffaa00;
-            --error: #ff3333;
             --border: rgba(255, 255, 255, 0.05);
-            --border-bright: rgba(255, 255, 255, 0.12);
             --font-mono: 'JetBrains Mono', monospace;
-            --font-sans: 'Inter', sans-serif;
-            --font-display: 'Space Grotesk', sans-serif;
             --ease: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* --- GLOBAL RESET & SCROLL --- */
-        * { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; -webkit-font-smoothing: antialiased; }
-        html, body { 
-            background: var(--bg); color: var(--text-main); 
-            font-family: var(--font-sans); overflow-x: hidden;
-            width: 100%; min-height: 100vh;
-        }
-        ::-webkit-scrollbar { width: 3px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--accent); }
+        * { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
+        body { background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
-        /* --- TITAN VISUAL ENGINE --- */
-        #titan-canvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-        .cr-overlay {
-            position: fixed; inset: 0; z-index: 9999; pointer-events: none;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.08) 50%);
-            background-size: 100% 3px; opacity: 0.2;
-        }
-        .vignette {
-            position: fixed; inset: 0; z-index: -1;
-            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.8) 100%);
-        }
+        /* --- VISUAL ENGINE --- */
+        #bg-canvas { position: fixed; inset: 0; z-index: -1; }
+        .vignette { position: fixed; inset: 0; pointer-events: none; z-index: 50; background: radial-gradient(circle, transparent 40%, #000 130%); }
 
-        /* --- NAVIGATION SYSTEM --- */
+        /* --- COOKIE SHIELD --- */
+        #cookie-shield {
+            position: fixed; bottom: 30px; right: 30px; width: 380px;
+            background: var(--surface); border: 1px solid var(--accent);
+            padding: 30px; z-index: 10000; display: none;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+        }
+        #cookie-shield h4 { font-family: var(--font-mono); color: var(--accent); margin-bottom: 15px; font-size: 0.8rem; }
+        #cookie-shield p { font-size: 0.75rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 20px; }
+
+        /* --- GLOBAL CHAT --- */
+        #chat-sys {
+            position: fixed; bottom: 30px; left: 30px; width: 320px; height: 400px;
+            background: rgba(5,5,5,0.9); border: 1px solid var(--border);
+            z-index: 2000; display: flex; flex-direction: column; backdrop-filter: blur(15px);
+        }
+        #chat-head { padding: 12px; border-bottom: 1px solid var(--border); font-family: var(--font-mono); font-size: 0.6rem; display: flex; justify-content: space-between; }
+        #chat-content { flex: 1; overflow-y: auto; padding: 15px; font-family: var(--font-mono); font-size: 0.65rem; }
+        .msg { margin-bottom: 8px; border-left: 1px solid var(--accent); padding-left: 10px; }
+        .msg span { color: var(--accent); font-weight: 700; }
+        #chat-bar { border-top: 1px solid var(--border); display: flex; }
+        #chat-bar input { background: transparent; border: none; color: #fff; padding: 12px; flex: 1; outline: none; font-size: 0.7rem; font-family: var(--font-mono); }
+
+        /* --- UI COMPONENTS --- */
         nav {
-            position: fixed; top: 0; width: 100%; height: 100px;
+            position: fixed; top: 0; width: 100%; height: 80px;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 6%; z-index: 2000; border-bottom: 1px solid var(--border);
-            backdrop-filter: blur(40px); transition: 0.5s var(--ease);
+            padding: 0 6%; z-index: 3000; border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(25px);
         }
-        nav.compact { height: 70px; background: rgba(0,0,0,0.9); }
-        .brand { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; letter-spacing: -2px; }
-        .brand span { color: var(--accent); text-shadow: 0 0 15px var(--accent-glow); }
+        .brand { font-family: 'Space Grotesk'; font-size: 1.8rem; font-weight: 900; letter-spacing: -2px; }
+        .brand span { color: var(--accent); }
 
-        .nav-items { display: flex; gap: 45px; }
-        .nav-item { 
-            font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-dim); 
-            text-decoration: none; transition: 0.4s; letter-spacing: 3px; text-transform: uppercase;
-        }
-        .nav-item:hover { color: var(--accent); transform: translateY(-2px); }
-
-        /* --- COMPONENT ARCHETYPES --- */
+        .container { width: 88%; max-width: 1400px; margin: 0 auto; }
         .btn {
-            background: transparent; border: 1px solid var(--border-bright); color: #fff;
-            padding: 18px 36px; font-family: var(--font-mono); font-size: 0.7rem;
-            letter-spacing: 2px; text-transform: uppercase; transition: 0.6s var(--ease);
-            position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 15px;
+            background: var(--accent); border: 1px solid var(--accent); color: #000;
+            padding: 15px 30px; font-family: var(--font-mono); font-size: 0.65rem;
+            font-weight: 700; text-transform: uppercase; transition: 0.4s;
         }
-        .btn::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: 0.5s;
-        }
-        .btn:hover::before { left: 100%; }
-        .btn:hover { background: #fff; color: #000; border-color: #fff; box-shadow: 0 10px 40px rgba(255,255,255,0.1); }
-        .btn-primary { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 700; }
-        .btn-primary:hover { background: #fff; color: #000; }
+        .btn:hover { background: #fff; border-color: #fff; transform: translateY(-3px); }
+        .btn-outline { background: transparent; color: #fff; border-color: var(--border); }
 
-        .container { width: 88%; max-width: 1600px; margin: 0 auto; }
+        /* --- REVIEWS --- */
+        .rev-section { padding: 150px 0; background: #030303; }
+        .rev-header { display: flex; align-items: flex-end; gap: 50px; margin-bottom: 80px; }
+        .rev-avg { font-size: 7rem; font-family: 'Space Grotesk'; font-weight: 900; line-height: 1; }
+        .rev-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .rev-card { background: var(--surface); padding: 40px; border: 1px solid var(--border); transition: 0.3s; }
+        .rev-card:hover { border-color: var(--accent); }
+        
+        /* --- PRIVACY MODULE --- */
+        .legal-footer { padding: 80px 0; border-top: 1px solid var(--border); }
+        .legal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; }
+        .legal-item h5 { font-family: var(--font-mono); color: var(--accent); margin-bottom: 20px; font-size: 0.7rem; }
+        .legal-item p { color: var(--text-dim); font-size: 0.85rem; line-height: 1.8; }
 
-        /* --- HERO INTERFACE --- */
-        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
-        .hero-pre { font-family: var(--font-mono); color: var(--accent); font-size: 0.8rem; margin-bottom: 25px; display: block; }
-        .hero h1 { font-family: var(--font-display); font-size: clamp(3.5rem, 12vw, 10rem); line-height: 0.85; font-weight: 900; margin-bottom: 40px; letter-spacing: -4px; }
-        .hero p { max-width: 650px; color: var(--text-dim); font-size: 1.25rem; line-height: 1.8; margin-bottom: 60px; padding-left: 35px; border-left: 1px solid var(--accent); }
+        /* --- CURSOR --- */
+        #c-dot { position: fixed; width: 6px; height: 6px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 20000; }
+        #c-ring { position: fixed; width: 40px; height: 40px; border: 1px solid var(--accent); border-radius: 50%; pointer-events: none; z-index: 19999; transition: 0.15s; }
 
-        /* --- MATRIX GRID --- */
-        .matrix { padding: 180px 0; }
-        .matrix-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 80px; }
-        .matrix-grid { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); 
-            gap: 30px; 
-        }
-        .card {
-            background: var(--surface); border: 1px solid var(--border);
-            padding: 70px; transition: 0.8s var(--ease);
-            display: flex; flex-direction: column; justify-content: space-between; min-height: 580px;
-            position: relative;
-        }
-        .card::after {
-            content: 'DEPOLYMENT_READY'; position: absolute; top: 20px; right: 20px;
-            font-family: var(--font-mono); font-size: 10px; color: var(--accent); opacity: 0; transition: 0.3s;
-        }
-        .card:hover::after { opacity: 0.4; }
-        .card:hover { border-color: var(--accent); background: var(--elevated); transform: translateY(-10px); }
-        .card h3 { font-family: var(--font-display); font-size: 2.5rem; margin: 25px 0; font-weight: 700; }
-        .card p { color: var(--text-dim); line-height: 1.7; font-size: 0.95rem; }
-        .price { font-family: var(--font-display); font-size: 3.5rem; font-weight: 900; margin: 45px 0; letter-spacing: -2px; }
-        .price.ez { color: var(--success); }
-
-        /* --- DASHBOARD SYSTEM --- */
-        .db-row {
-            background: var(--surface); border: 1px solid var(--border);
-            padding: 45px; margin-bottom: 25px; display: flex; 
-            justify-content: space-between; align-items: center; transition: 0.4s;
-        }
-        .db-row:hover { background: #000; border-color: var(--accent-glow); }
-        .key-tag { font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent); background: #000; padding: 12px; border: 1px solid var(--border); margin-top: 15px; display: inline-block; }
-
-        /* --- TERMINAL LOG --- */
-        #term-log {
-            position: fixed; bottom: 30px; left: 30px; width: 320px; height: 180px;
-            background: rgba(0,0,0,0.8); border: 1px solid var(--border);
-            padding: 15px; z-index: 3000; font-family: var(--font-mono); font-size: 0.6rem;
-            overflow-y: hidden; pointer-events: none; backdrop-filter: blur(10px);
-        }
-        .log-entry { margin-bottom: 6px; color: #555; }
-        .log-entry span { color: var(--accent); }
-
-        /* --- ADMIN PORTAL --- */
-        #admin-root {
-            position: fixed; inset: 0; background: #000; z-index: 5000;
-            padding: 6%; overflow-y: auto; display: none;
-        }
-        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin: 60px 0; }
-        .stat-card { background: var(--surface); padding: 45px; border-top: 1px solid var(--accent); }
-        .stat-card .val { font-size: 3.5rem; font-family: var(--font-display); font-weight: 700; margin-top: 10px; }
-
-        /* --- NOTIFICATIONS --- */
-        #toaster { position: fixed; top: 120px; right: 40px; z-index: 4000; display: flex; flex-direction: column; gap: 12px; }
-        .toast {
-            background: #111; border-right: 4px solid var(--accent);
-            padding: 22px 45px; color: #fff; font-family: var(--font-mono); font-size: 0.7rem;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5); animation: slideIn 0.6s var(--ease) forwards;
-        }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-        /* --- CURSOR SYSTEM --- */
-        #c-dot { position: fixed; width: 6px; height: 6px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 10001; mix-blend-mode: difference; }
-        #c-ring { 
-            position: fixed; width: 45px; height: 45px; border: 1px solid var(--accent); 
-            border-radius: 50%; pointer-events: none; z-index: 10000;
-            transition: width 0.3s, height 0.3s, border-color 0.3s, transform 0.1s;
-        }
-
-        /* --- ANIMATIONS --- */
-        .reveal { opacity: 0; transform: translateY(50px); transition: 1.2s var(--ease); }
+        .reveal { opacity: 0; transform: translateY(40px); transition: 1.2s var(--ease); }
         .reveal.active { opacity: 1; transform: translateY(0); }
 
-        @media (max-width: 768px) {
-            .nav-items { display: none; }
-            .hero h1 { font-size: 4rem; }
-            .matrix-grid { grid-template-columns: 1fr; }
-            #term-log { display: none; }
-        }
+        @media (max-width: 768px) { .legal-grid { grid-template-columns: 1fr; } #chat-sys { display: none; } }
     </style>
 </head>
 <body>
 
-    <canvas id="titan-canvas"></canvas>
-    <div class="cr-overlay"></div>
+    <canvas id="bg-canvas"></canvas>
     <div class="vignette"></div>
     <div id="c-dot"></div>
     <div id="c-ring"></div>
-    <div id="toaster"></div>
 
-    <div id="term-log"></div>
-
-    <div id="gate" style="position:fixed; inset:0; background:var(--bg); z-index:9000; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
-        <div class="reveal active">
-            <span class="hero-pre">[ ENCRYPTED_ACCESS_v11 ]</span>
-            <h1 class="brand" style="font-size: 6rem; margin-bottom: 25px;">LOUPA<span>.</span></h1>
-            <p style="margin: 0 auto 50px; border: none; padding: 0;">SECURE HANDSHAKE REQUIRED FOR ASSET ACCESS</p>
-            <button onclick="Loupa.auth.connect()" class="btn btn-primary">Initialize Link</button>
+    <div id="cookie-shield">
+        <h4>SECURE_COOKIE_HANDSHAKE</h4>
+        <p>This node uses encrypted cookies to optimize session stability and reinforce protocol security. By proceeding, you accept our data-handling logic.</p>
+        <div style="display:flex; gap:10px;">
+            <button class="btn" style="padding: 10px 20px;" onclick="Loupa.secure.acceptCookies()">ACCEPT_PROTOCOLS</button>
+            <button class="btn btn-outline" style="padding: 10px 20px;" onclick="Loupa.secure.acceptCookies()">DECLINE</button>
         </div>
     </div>
 
-    <nav id="nav-bar">
-        <a href="#" class="brand">LOUPA<span>.</span></a>
-        <div class="nav-items">
-            <a href="#services" class="nav-item">Service_Matrix</a>
-            <a href="#dashboard" class="nav-item">Client_Panel</a>
-            <a href="#about" class="nav-item">Reputation</a>
+    <div id="auth-gate" style="position:fixed; inset:0; background:#000; z-index:9000; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+        <h1 class="brand" style="font-size: 5rem; margin-bottom: 20px;">LOUPA<span>.</span></h1>
+        <p class="mono" style="color:var(--text-dim); margin-bottom:40px;">// ACCESS_LEVEL_REQUIRED</p>
+        <button onclick="Loupa.auth.init()" class="btn">INITIALIZE_LINK</button>
+    </div>
+
+    <div id="chat-sys">
+        <div id="chat-head">
+            <span>[ SYSTEM_COMMS ]</span>
+            <span style="color:var(--success)">ONLINE</span>
         </div>
-        <div style="display:flex; align-items:center; gap:30px;">
-            <div id="live-indicator" style="width:8px; height:8px; background:var(--success); border-radius:50%; box-shadow:0 0 10px var(--success);"></div>
-            <div id="user-display" class="mono" style="font-size:0.6rem; letter-spacing:1px;">GUEST_NODE</div>
+        <div id="chat-content"></div>
+        <div id="chat-bar">
+            <input type="text" id="chat-input" placeholder="Broadcast to peers..." maxlength="80">
         </div>
+    </div>
+
+    <nav>
+        <div class="brand">LOUPA<span>.</span></div>
+        <div class="mono" id="node-id" style="font-size:0.6rem; color:var(--text-dim);">AWAITING_IDENT_V12</div>
     </nav>
 
-    <main id="app-root" style="display:none; margin-top:100px;">
-        
-        <section class="container hero">
+    <main id="app-root" style="display:none; margin-top:80px;">
+        <section class="container" style="min-height:80vh; display:flex; flex-direction:column; justify-content:center;">
             <div class="reveal">
-                <span class="hero-pre">// SYSTEM_STATUS: OPERATIONAL</span>
-                <h1>ENGINEERING<br><span id="type-target" style="color:var(--accent);"></span></h1>
-                <p>Premium digital development for elite startups. We build high-velocity interfaces, autonomous data bots, and scalable brand ecosystems using the latest in neural architecture.</p>
-                <div style="display:flex; gap:25px; flex-wrap:wrap;">
-                    <button onclick="window.scrollTo(0, 1200)" class="btn btn-primary">Access Matrix</button>
-                    <button class="btn" onclick="Loupa.ui.toast('Requesting archive permissions...')">View Archives</button>
+                <h1 style="font-size: clamp(3rem, 12vw, 8rem); font-family:'Space Grotesk'; font-weight:900; line-height:0.85;">SECURED<br><span style="color:var(--accent);">ASSETS.</span></h1>
+                <p style="color:var(--text-dim); max-width:650px; margin-top:40px; line-height:1.8; font-size:1.1rem; border-left: 1px solid var(--accent); padding-left: 30px;">
+                    Loupa provides professional-grade digital assets backed by a secure peer-to-peer ecosystem. Your data is encrypted, your sessions are private, and our results are verified by 750+ global nodes.
+                </p>
+            </div>
+        </section>
+
+        <section class="rev-section" id="reviews">
+            <div class="container">
+                <div class="rev-header reveal">
+                    <div>
+                        <div class="rev-avg" id="avg-val">4.3</div>
+                        <div style="color:var(--accent); letter-spacing:8px; margin-top:10px;">★★★★☆</div>
+                    </div>
+                    <div>
+                        <h2 class="mono" style="color:var(--accent); font-size:1.5rem;">PEER_VERIFIED_DATA</h2>
+                        <p class="mono" id="vote-count" style="color:var(--text-dim); margin-top:10px;">752_VOTES_LOGGED</p>
+                    </div>
+                </div>
+
+                <div class="rev-grid" id="rev-list"></div>
+
+                <div class="reveal" style="margin-top:80px; background:var(--surface); padding:60px; border:1px solid var(--border);">
+                    <h3 class="mono" style="margin-bottom:30px;">LOG_FEEDBACK</h3>
+                    <div style="display:flex; gap:10px; margin-bottom:20px;" id="star-rank">
+                        <span style="cursor:pointer; font-size:1.5rem; color:var(--accent);" data-v="1">★</span>
+                        <span style="cursor:pointer; font-size:1.5rem; color:var(--accent);" data-v="2">★</span>
+                        <span style="cursor:pointer; font-size:1.5rem; color:var(--accent);" data-v="3">★</span>
+                        <span style="cursor:pointer; font-size:1.5rem; color:var(--accent);" data-v="4">★</span>
+                        <span style="cursor:pointer; font-size:1.5rem; color:var(--text-dim);" data-v="5">★</span>
+                    </div>
+                    <textarea id="rev-input" style="width:100%; height:120px; background:#000; border:1px solid var(--border); color:#fff; padding:20px; outline:none; font-family:inherit; margin-bottom:30px;" placeholder="Describe your deployment experience..."></textarea>
+                    <button class="btn" onclick="Loupa.reviews.post()">SUBMIT_PROTOCOL</button>
                 </div>
             </div>
         </section>
 
-        <section class="container matrix" id="services">
-            <div class="matrix-header reveal">
-                <div>
-                    <span class="hero-pre">01 // ASSET_DEPLOYMENT</span>
-                    <h2 style="font-family: var(--font-display); font-size: 4.5rem; font-weight: 900;">Core_Capabilities</h2>
+        <section class="legal-footer">
+            <div class="container legal-grid reveal">
+                <div class="legal-item">
+                    <h5>01 // PRIVACY_SHIELD</h5>
+                    <p>Loupa Protocol prioritizes data sovereignty. All user interactions are processed through encrypted channels. We do not store plain-text passwords or identifiable metadata beyond session-essential cookies. Your digital footprint is purged upon node disconnection.</p>
                 </div>
-                <div style="display:flex; gap:15px; flex-wrap:wrap;">
-                    <button onclick="Loupa.logic.filter('ALL')" class="btn" style="padding:10px 20px; font-size:0.6rem;">ALL_ASSETS</button>
-                    <button onclick="Loupa.logic.filter('EZ')" class="btn" style="padding:10px 20px; font-size:0.6rem; border-color:var(--success)">EZ_BUDGET</button>
-                    <button onclick="Loupa.logic.filter('PRO')" class="btn" style="padding:10px 20px; font-size:0.6rem; border-color:var(--accent)">ENTERPRISE</button>
-                </div>
-            </div>
-
-            <div class="matrix-grid" id="grid-target">
-                </div>
-        </section>
-
-        <section class="container" id="dashboard" style="padding: 180px 0; border-top:1px solid var(--border);">
-            <div class="reveal">
-                <span class="hero-pre">02 // CLIENT_ENCLAVE</span>
-                <h2 style="font-family: var(--font-display); font-size: 3.5rem; font-weight: 900;">Command_Dashboard</h2>
-            </div>
-            
-            <div id="db-target" class="reveal" style="margin-top:70px;">
-                <div class="db-row mono" style="justify-content:center; color:var(--text-dim);">
-                    AWAITING_SECURE_SYNC...
+                <div class="legal-item">
+                    <h5>02 // COOKIE_POLICY</h5>
+                    <p>We utilize local storage and session-based cookies to maintain your authentication state and preferences. These are strictly functional and do not track off-platform activity. Security headers are enforced at the server level to prevent XSS and data-leakage.</p>
                 </div>
             </div>
         </section>
-
-        <footer style="padding: 120px 0 60px; border-top: 1px solid var(--border);">
-            <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:50px;">
-                <div class="brand">LOUPA<span>.</span></div>
-                <div class="mono" style="color:var(--text-dim); font-size:0.6rem;">&copy; 2026 LOUPA // UNIVERSAL_OS_v11</div>
-                <div class="mono" id="clock" style="color:var(--accent)">00:00:00</div>
-            </div>
-        </footer>
     </main>
 
-    <div id="admin-root">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 style="font-family: var(--font-display); color:var(--accent); font-size:3rem;">ROOT_ACCESS</h2>
-            <button onclick="Loupa.admin.toggle()" class="btn">DISCONNECT</button>
-        </div>
-        <div class="stat-grid">
-            <div class="stat-card"><small class="mono">TOTAL_REVENUE</small><div class="val" id="a-rev">$0</div></div>
-            <div class="stat-card"><small class="mono">ACTIVE_PEERS</small><div class="val" id="a-users">0</div></div>
-            <div class="stat-card"><small class="mono">TASKS_PENDING</small><div class="val" id="a-orders">0</div></div>
-            <div class="stat-card"><small class="mono">CORE_LATENCY</small><div class="val">1.2ms</div></div>
-        </div>
-        <div style="background:var(--surface); padding:60px; border:1px solid var(--border);">
-            <h3 class="mono" style="margin-bottom:40px;">PEER_LOG_ARCHIVE</h3>
-            <table style="width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:0.7rem; text-align:left;">
-                <thead style="color:var(--text-dim); border-bottom:1px solid var(--border);">
-                    <tr><th style="padding:25px;">CLIENT</th><th>EMAIL</th><th>IP_ADDRESS</th><th>LEVEL</th></tr>
-                </thead>
-                <tbody id="a-table"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <div id="modal-box" style="position:fixed; inset:0; background:rgba(0,0,0,0.98); z-index:10000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(30px);">
-        <div style="background:var(--surface); border:1px solid var(--accent); width:95%; max-width:650px; padding:80px; text-align:center;">
-            <h2 id="m-title" style="font-family: var(--font-display); font-size:3.5rem; margin-bottom:15px; font-weight:900;">SERVICE</h2>
-            <div class="mono" id="m-id" style="color:var(--accent); margin-bottom:35px;">ID: 000</div>
-            <p id="m-desc" style="color:var(--text-dim); line-height:1.8; margin-bottom:60px;"></p>
-            <div id="paypal-root"></div>
-            <button onclick="Loupa.ui.close()" class="btn" style="width:100%; margin-top:40px;">ABORT_HANDSHAKE</button>
-        </div>
-    </div>
-
     <script>
-    "use strict";
-
     const Loupa = (() => {
-
-        const ADM_MAIL = "wahdkhonafdar@gmail.com";
         const fbConfig = {
             apiKey: "AIzaSyDwkqu_JpelnceEjwbdP76hzwQ1JMFI2D0",
             authDomain: "loupa-d2ca2.firebaseapp.com",
@@ -316,302 +201,168 @@
             messagingSenderId: "1062889452519",
             appId: "1:1062889452519:web:a412e262ba0981d3c3c342"
         };
-
         firebase.initializeApp(fbConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        const assets = [
-            { id: "EZ-001", name: "Favicon Suite", price: 15, cat: "EZ", desc: "Complete set of browser, mobile, and app-ready icons." },
-            { id: "EZ-002", name: "Modern Logo", price: 25, cat: "EZ", desc: "Precision minimalist vector identity for your brand." },
-            { id: "EZ-003", name: "JS Debugging", price: 30, cat: "EZ", desc: "Instant fix for frontend scripts or logic bottlenecks." },
-            { id: "EZ-004", name: "Speed Audit", price: 20, cat: "EZ", desc: "Detailed performance optimization roadmap." },
-            { id: "EZ-005", name: "HTML Email", price: 45, cat: "EZ", desc: "Universal responsive marketing template." },
-            { id: "PRO-001", name: "SaaS Launchpad", price: 599, cat: "PRO", desc: "Full-scale landing page with Framer/React architecture." },
-            { id: "PRO-002", name: "Python Scraper", price: 450, cat: "PRO", desc: "Autonomous data mining bot with export logic." },
-            { id: "PRO-003", name: "Firebase Backend", price: 899, cat: "PRO", desc: "Serverless DB, Auth, and Storage infrastructure." },
-            { id: "PRO-004", name: "AI Agent", price: 1400, cat: "PRO", desc: "Custom-trained GPT assistant for business data." },
-            { id: "PRO-005", name: "Security Hardening", price: 650, cat: "PRO", desc: "Complete DDoS and firewall protection suite." },
-            { id: "PRO-006", name: "React WebApp", price: 1200, cat: "PRO", desc: "Functional dashboard prototype with API hooks." },
-            { id: "PRO-007", name: "Discord System", price: 350, cat: "PRO", desc: "Advanced server logic and custom economy bot." },
-            { id: "PRO-008", name: "SEO Dominance", price: 750, cat: "PRO", desc: "Aggressive 30-day search engine ranking strategy." },
-            { id: "PRO-009", name: "Smart Contract", price: 2000, cat: "PRO", desc: "Audited Solidity contract for Web3 deployments." },
-            { id: "PRO-010", name: "Architecture Call", price: 150, cat: "PRO", desc: "1-hour deep technical consulting and roadmapping." }
-        ];
+        let baseCount = 752;
+        let baseSum = 752 * 4.3;
 
-        // --- VISUAL ENGINE (POLYGONS & GLITCH) ---
-        const RenderEngine = {
-            c: null, ctx: null, pts: [], sqs: [], mouse: {x:0, y:0},
-            
+        // --- BACKGROUND ENGINE ---
+        const Engine = {
             init() {
-                this.c = document.getElementById('titan-canvas');
-                if(!this.c) return;
+                this.c = document.getElementById('bg-canvas');
                 this.ctx = this.c.getContext('2d');
-                window.onresize = () => this.resize(); this.resize();
-                
-                // Initialize nodes
-                for(let i=0; i<90; i++) this.pts.push({
-                    x: Math.random() * this.c.width, y: Math.random() * this.c.height,
-                    vx: (Math.random()-0.5)*0.7, vy: (Math.random()-0.5)*0.7,
-                    r: Math.random() * 2
-                });
-
-                // Initialize glitch squares
-                for(let i=0; i<12; i++) this.sqs.push({
-                    x: Math.random() * this.c.width, y: Math.random() * this.c.height,
-                    s: Math.random() * 60 + 10, op: Math.random() * 0.1
-                });
-
-                document.onmousemove = e => { this.mouse.x = e.clientX; this.mouse.y = e.clientY; };
+                window.onresize = () => { this.c.width = window.innerWidth; this.c.height = window.innerHeight; };
+                window.onresize();
+                this.pts = Array.from({length:60}, () => ({x:Math.random()*this.c.width, y:Math.random()*this.c.height, s:Math.random()*2}));
                 this.loop();
             },
-            resize() {
-                this.c.width = window.innerWidth;
-                this.c.height = window.innerHeight;
-            },
             loop() {
-                this.ctx.clearRect(0,0,this.c.width,this.c.height);
-                
-                // Render nodes and polygons
-                this.pts.forEach((p, i) => {
-                    p.x += p.vx; p.y += p.vy;
-                    if(p.x < 0 || p.x > this.c.width) p.vx *= -1;
-                    if(p.y < 0 || p.y > this.c.height) p.vy *= -1;
-
-                    this.ctx.fillStyle = 'rgba(255, 85, 0, 0.4)';
-                    this.ctx.beginPath(); this.ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); this.ctx.fill();
-
-                    for(let j=i+1; j<this.pts.length; j++){
-                        const p2 = this.pts[j];
-                        const d = Math.hypot(p.x - p2.x, p.y - p2.y);
-                        if(d < 180) {
-                            this.ctx.strokeStyle = `rgba(255, 85, 0, ${0.18 * (1 - d/180)})`;
-                            this.ctx.lineWidth = 0.6;
-                            this.ctx.beginPath(); this.ctx.moveTo(p.x, p.y); this.ctx.lineTo(p2.x, p2.y); this.ctx.stroke();
-                        }
-                    }
-                    
-                    // Mouse connection
-                    const md = Math.hypot(p.x - this.mouse.x, p.y - this.mouse.y);
-                    if(md < 250) {
-                        this.ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 * (1 - md/250)})`;
-                        this.ctx.beginPath(); this.ctx.moveTo(p.x, p.y); this.ctx.lineTo(this.mouse.x, this.mouse.y); this.ctx.stroke();
-                    }
+                this.ctx.fillStyle = 'rgba(1,1,1,0.2)';
+                this.ctx.fillRect(0,0,this.c.width,this.c.height);
+                this.pts.forEach(p => {
+                    p.y += p.s; if(p.y > this.c.height) p.y = -10;
+                    this.ctx.fillStyle = 'rgba(255,85,0,0.3)';
+                    this.ctx.fillRect(p.x, p.y, 1, 10);
                 });
-
-                // Render glitch squares
-                this.sqs.forEach(s => {
-                    if(Math.random() > 0.99) { s.x = Math.random()*this.c.width; s.y = Math.random()*this.c.height; }
-                    this.ctx.strokeStyle = `rgba(255, 255, 255, ${s.op})`;
-                    this.ctx.strokeRect(s.x, s.y, s.s, s.s);
-                });
-
                 requestAnimationFrame(() => this.loop());
             }
         };
 
-        // --- AUTH & SECURITY ---
-        const AuthModule = {
-            async connect() {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                try {
-                    const res = await auth.signInWithPopup(provider);
-                    const ipRes = await fetch('https://api.ipify.org?format=json');
-                    const ipData = await ipRes.json();
-                    
-                    await db.collection("users").doc(res.user.uid).set({
-                        name: res.user.displayName, email: res.user.email,
-                        ip: ipData.ip, rank: res.user.email === ADM_MAIL ? 'ROOT' : 'CLIENT',
-                        last_seen: firebase.firestore.FieldValue.serverTimestamp()
-                    }, { merge: true });
-
-                    UIModule.log(`USER_AUTH: ${res.user.displayName.toUpperCase()}`);
-                } catch(e) { UIModule.toast("AUTH_FAILED", "error"); }
+        // --- SECURITY & COOKIES ---
+        const Secure = {
+            check() {
+                if(!localStorage.getItem('loupa_consent')) {
+                    setTimeout(() => { document.getElementById('cookie-shield').style.display = 'block'; }, 2000);
+                }
             },
-            listen() {
-                auth.onAuthStateChanged(u => {
-                    const g = document.getElementById('gate');
-                    const r = document.getElementById('app-root');
-                    if(u) {
-                        g.style.display = 'none'; r.style.display = 'block';
-                        document.getElementById('user-display').innerText = u.displayName.split(' ')[0].toUpperCase();
-                        OrderModule.sync(u.uid);
-                    } else {
-                        g.style.display = 'flex'; r.style.display = 'none';
-                    }
-                });
+            acceptCookies() {
+                localStorage.setItem('loupa_consent', 'true');
+                document.getElementById('cookie-shield').style.display = 'none';
             }
         };
 
-        // --- UI CORE ---
-        const UIModule = {
-            filter: 'ALL',
+        // --- CHAT ---
+        const Chat = {
             init() {
-                this.render(); this.cursor(); this.type(); this.clock(); this.reveal();
-                window.onscroll = () => {
-                    const n = document.getElementById('nav-bar');
-                    if(window.scrollY > 100) n.classList.add('compact');
-                    else n.classList.remove('compact');
-                };
-                this.log("LOUPA_CORE_v11: INITIALIZED");
-            },
-            render() {
-                const t = document.getElementById('grid-target');
-                const d = this.filter === 'ALL' ? assets : assets.filter(a => a.cat === this.filter);
-                t.innerHTML = d.map((s, i) => `
-                    <div class="card reveal active">
-                        <div>
-                            <span class="hero-pre">NODE_0${i+1} // ${s.cat}</span>
-                            <h3>${s.name}</h3>
-                            <p>${s.desc}</p>
-                        </div>
-                        <div>
-                            <div class="price ${s.cat === 'EZ' ? 'ez' : ''}">$${s.price}</div>
-                            <button onclick="Loupa.ui.open('${s.id}')" class="btn ${s.cat === 'PRO' ? 'btn-primary' : ''}" style="width:100%">DEPLOY_PROTOCOL</button>
-                        </div>
-                    </div>
-                `).join('');
-            },
-            log(msg) {
-                const l = document.getElementById('term-log');
-                const d = new Date().toLocaleTimeString();
-                l.innerHTML += `<div class="log-entry"><span>[${d}]</span> ${msg}</div>`;
-                l.scrollTop = l.scrollHeight;
-            },
-            toast(m, t = 'success') {
-                const bin = document.getElementById('toaster');
-                const div = document.createElement('div');
-                div.className = 'toast';
-                if(t === 'error') div.style.borderRightColor = 'var(--error)';
-                div.innerHTML = `<span class="mono">SYSTEM_LOG: ${m}</span>`;
-                bin.appendChild(div);
-                setTimeout(() => div.remove(), 4000);
-            },
-            open(id) {
-                const s = assets.find(x => x.id === id);
-                document.getElementById('m-title').innerText = s.name.toUpperCase();
-                document.getElementById('m-id').innerText = `ASSET_REF: ${s.id}`;
-                document.getElementById('m-desc').innerText = s.desc;
-                document.getElementById('modal-box').style.display = 'flex';
-                document.getElementById('paypal-root').innerHTML = '';
-                paypal.Buttons({
-                    createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: s.price } }] }),
-                    onApprove: (d, a) => a.order.capture().then(() => OrderModule.save(s))
-                }).render('#paypal-root');
-                this.log(`INITIALIZING_ORDER: ${s.id}`);
-            },
-            close() { document.getElementById('modal-box').style.display = 'none'; },
-            cursor() {
-                const d = document.getElementById('c-dot');
-                const r = document.getElementById('c-ring');
-                document.onmousemove = e => {
-                    d.style.left = e.clientX + 'px'; d.style.top = e.clientY + 'px';
-                    r.style.left = (e.clientX - 22) + 'px'; r.style.top = (e.clientY - 22) + 'px';
-                };
-                document.querySelectorAll('button, a, .card').forEach(el => {
-                    el.onmouseenter = () => { r.style.width = '70px'; r.style.height = '70px'; r.style.borderColor = '#fff'; };
-                    el.onmouseleave = () => { r.style.width = '45px'; r.style.height = '45px'; r.style.borderColor = 'var(--accent)'; };
+                db.collection("global_chat").orderBy("ts", "desc").limit(15).onSnapshot(snap => {
+                    const cont = document.getElementById('chat-content');
+                    cont.innerHTML = snap.docs.reverse().map(doc => {
+                        const d = doc.data();
+                        return `<div class="msg"><span>${d.user}:</span> ${d.text}</div>`;
+                    }).join('');
+                    cont.scrollTop = cont.scrollHeight;
                 });
-            },
-            type() {
-                const words = ["IDENTITIES.", "INTERFACES.", "ALGORITHMS.", "ECOSYSTEMS."];
-                let wI = 0, cI = 0, del = false;
-                const t = document.getElementById('type-target');
-                const step = () => {
-                    const cur = words[wI];
-                    t.innerText = del ? cur.substring(0, cI--) : cur.substring(0, cI++);
-                    if(!del && cI > cur.length) { del = true; setTimeout(step, 2000); }
-                    else if(del && cI === 0) { del = false; wI = (wI+1)%words.length; setTimeout(step, 400); }
-                    else setTimeout(step, del ? 40 : 110);
+
+                document.getElementById('chat-input').onkeydown = e => {
+                    if(e.key === 'Enter' && e.target.value.trim()) {
+                        db.collection("global_chat").add({
+                            user: auth.currentUser.displayName.split(' ')[0],
+                            text: e.target.value,
+                            ts: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        e.target.value = '';
+                    }
                 };
-                step();
-            },
-            clock() { setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US', {hour12:false}); }, 1000); },
-            reveal() {
-                const obs = new IntersectionObserver(es => { es.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); }); }, {threshold: 0.1});
-                document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
             }
         };
 
-        // --- ORDER ENGINE ---
-        const OrderModule = {
-            async save(s) {
-                const u = auth.currentUser;
-                const key = 'LPX-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-                await db.collection("orders").add({
-                    uid: u.uid, client: u.displayName, item: s.name, 
-                    price: s.price, key: key, status: 'PROCESSING',
-                    ts: firebase.firestore.FieldValue.serverTimestamp()
+        // --- REVIEWS ---
+        const Reviews = {
+            stars: 4,
+            init() {
+                document.querySelectorAll('#star-rank span').forEach(s => {
+                    s.onclick = () => {
+                        this.stars = s.dataset.v;
+                        document.querySelectorAll('#star-rank span').forEach(x => x.style.color = x.dataset.v <= this.stars ? 'var(--accent)' : 'var(--text-dim)');
+                    };
                 });
-                UIModule.close();
-                UIModule.toast("PAYMENT_VERIFIED: ASSET_DEPLOYED");
-                UIModule.log(`TRANSACTION_SUCCESS: ${key}`);
-            },
-            sync(uid) {
-                db.collection("orders").where("uid", "==", uid).onSnapshot(snap => {
-                    const target = document.getElementById('db-target');
-                    if(snap.empty) { target.innerHTML = `<div class="db-row mono" style="justify-content:center;">ZERO_ACTIVE_CHANNELS</div>`; return; }
-                    target.innerHTML = snap.docs.map(doc => {
+
+                db.collection("reviews").orderBy("ts", "desc").onSnapshot(snap => {
+                    const list = document.getElementById('rev-list');
+                    let currentSum = baseSum;
+                    let currentCount = baseCount + snap.size;
+                    
+                    list.innerHTML = snap.docs.map(doc => {
                         const d = doc.data();
+                        currentSum += parseInt(d.stars);
                         return `
-                            <div class="db-row">
-                                <div>
-                                    <span class="hero-pre">REF: ${doc.id.substring(0,8)}</span>
-                                    <h4 style="font-family:var(--font-display); font-size:1.8rem; margin:10px 0;">${d.item}</h4>
-                                    <div class="key-tag">LICENSE_KEY: ${d.key}</div>
-                                </div>
-                                <div class="mono" style="color:var(--success)">[${d.status}]</div>
-                                <div class="price ez" style="font-size:2rem; margin:0;">$${d.price}</div>
+                            <div class="rev-card">
+                                <div class="mono" style="color:var(--accent); font-size:0.6rem; margin-bottom:15px;">CLIENT_NODE_${doc.id.substring(0,5)}</div>
+                                <p style="font-size:0.9rem; line-height:1.6; color:var(--text-dim)">"${d.text}"</p>
+                                <div style="color:var(--accent); margin-top:20px; font-size:0.7rem;">${"★".repeat(d.stars)}</div>
                             </div>
                         `;
                     }).join('');
-                });
-            }
-        };
 
-        // --- ROOT OVERRIDE ---
-        const AdminModule = {
-            toggle() {
-                const p = document.getElementById('admin-root');
-                p.style.display = p.style.display === 'block' ? 'none' : 'block';
-                if(p.style.display === 'block') this.load();
+                    document.getElementById('avg-val').innerText = (currentSum / currentCount).toFixed(1);
+                    document.getElementById('vote-count').innerText = `${currentCount}_VOTES_LOGGED`;
+                });
             },
-            load() {
-                db.collection("users").onSnapshot(snap => {
-                    document.getElementById('a-users').innerText = snap.size;
-                    document.getElementById('a-table').innerHTML = snap.docs.map(doc => {
-                        const u = doc.data();
-                        return `<tr style="border-bottom:1px solid #111;"><td style="padding:25px; color:#fff;">${u.name}</td><td>${u.email}</td><td>${u.ip}</td><td style="color:var(--accent)">${u.rank}</td></tr>`;
-                    }).join('');
+            post() {
+                const val = document.getElementById('rev-input').value;
+                if(!val) return;
+                db.collection("reviews").add({
+                    user: auth.currentUser.displayName.toUpperCase(),
+                    stars: this.stars,
+                    text: val,
+                    ts: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                db.collection("orders").onSnapshot(snap => {
-                    let rev = 0; snap.forEach(d => rev += d.data().price);
-                    document.getElementById('a-rev').innerText = `$${rev}`;
-                    document.getElementById('a-orders').innerText = snap.size;
-                });
+                document.getElementById('rev-input').value = '';
             }
         };
 
         return {
-            auth: AuthModule, ui: UIModule, admin: AdminModule,
-            logic: { filter: c => { UIModule.filter = c; UIModule.render(); UIModule.log(`FILTER_CHANGED: ${c}`); } },
-            engine: RenderEngine
+            auth: {
+                init() {
+                    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(res => {
+                        document.getElementById('auth-gate').style.display = 'none';
+                        document.getElementById('app-root').style.display = 'block';
+                        document.getElementById('node-id').innerText = `NODE_ID: ${res.user.displayName.toUpperCase()}`;
+                        Chat.init();
+                        Reviews.init();
+                        Secure.check();
+                    });
+                }
+            },
+            secure: Secure,
+            reviews: Reviews,
+            ui: {
+                init() {
+                    const d = document.getElementById('c-dot'), r = document.getElementById('c-ring');
+                    document.onmousemove = e => {
+                        d.style.left = e.clientX + 'px'; d.style.top = e.clientY + 'px';
+                        r.style.transform = `translate(${e.clientX-20}px, ${e.clientY-20}px)`;
+                    };
+                    const obs = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); }));
+                    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+                }
+            }
         };
-
     })();
 
-    // INITIALIZATION
-    document.addEventListener('DOMContentLoaded', () => {
-        Loupa.engine.init();
-        Loupa.auth.listen();
-        Loupa.ui.init();
-    });
-
-    window.onkeydown = e => {
-        if(e.shiftKey && e.key === 'A' && firebase.auth().currentUser?.email === "wahdkhonafdar@gmail.com") Loupa.admin.toggle();
-        if(e.key === 'Escape') Loupa.ui.close();
+    window.onload = () => { 
+        Loupa.ui.init(); 
+        Loupa.LoupaEngine = Loupa; // Global ref
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        
+        let rain = Array.from({length: 100}, () => ({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*5+2 }));
+        
+        function draw() {
+            ctx.fillStyle = 'rgba(1,1,1,0.15)';
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = 'rgba(255,85,0,0.15)';
+            rain.forEach(r => {
+                r.y += r.v; if(r.y > canvas.height) r.y = -20;
+                ctx.fillRect(r.x, r.y, 1, 15);
+            });
+            requestAnimationFrame(draw);
+        }
+        draw();
     };
-
     </script>
 </body>
 </html>
