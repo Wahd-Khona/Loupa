@@ -3,146 +3,117 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>LOUPA // APEX_v20.0</title>
+<title>LOUPA // APEX_v21.0_PRECISION</title>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;900&family=JetBrains+Mono:wght@100;700&display=swap" rel="stylesheet">
 <style>
-:root { --bg: #000; --surface: #030303; --accent: #f50; --lazy: #08f; --ghost: #b0f; --success: #0fa; --border: rgba(255,85,0,0.15); --font-mono: 'JetBrains Mono', monospace; }
-* { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; user-select: none; }
-body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-body::after { content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.25) 50%), linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06)); z-index: 2; background-size: 100% 2px, 3px 100%; pointer-events: none; }
-#bg-canvas { position: fixed; inset: 0; z-index: -1; opacity: 0.6; filter: blur(1px); }
-#boot-seq { position: fixed; inset: 0; background: #000; z-index: 30000; display: flex; flex-direction: column; padding: 40px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--success); text-shadow: 2px 0 red, -2px 0 blue; }
-#boot-text { white-space: pre-wrap; }
+:root { --bg: #000; --surface: #040404; --accent: #f50; --lazy: #08f; --ghost: #b0f; --success: #0fa; --border: rgba(255,85,0,0.2); --font-mono: 'JetBrains Mono', monospace; }
+* { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; user-select: none; outline: none; }
+body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; width: 100vw; height: 100vh; }
+body::after { content: " "; display: block; position: fixed; inset: 0; background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%), linear-gradient(90deg, rgba(255,0,0,0.03), rgba(0,255,0,0.01), rgba(0,0,255,0.03)); z-index: 999999; background-size: 100% 2px, 3px 100%; pointer-events: none; }
+#bg-canvas { position: fixed; inset: 0; z-index: -1; opacity: 0.4; }
+#boot-seq { position: fixed; inset: 0; background: #000; z-index: 30000; display: flex; flex-direction: column; padding: 40px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--success); }
 #gate-keeper { position: fixed; inset: 0; background: #000; z-index: 20000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-.glitch { font-family: 'Space Grotesk'; font-size: 6rem; font-weight: 900; position: relative; text-shadow: 3px 0 red, -3px 0 blue; animation: g 1.5s infinite; }
-@keyframes g { 0% { transform: translate(0) } 20% { transform: translate(-2px, 2px) } 40% { transform: translate(-2px, -2px) } 60% { transform: translate(2px, 2px) } 80% { transform: translate(2px, -2px) } 100% { transform: translate(0) } }
-#term-os { position: fixed; top: 100px; left: 40px; width: 450px; height: 600px; background: rgba(0,0,0,0.85); border: 1px solid var(--accent); z-index: 10000; display: flex; flex-direction: column; backdrop-filter: blur(10px); box-shadow: 0 0 40px var(--border); transform: scale(0.9); opacity: 0; transition: transform 0.3s, opacity 0.3s; pointer-events: none; }
+.glitch { font-family: 'Space Grotesk'; font-size: clamp(3rem, 10vw, 6rem); font-weight: 900; text-shadow: 3px 0 red, -3px 0 blue; animation: g 1s infinite alternate; }
+@keyframes g { 0% { clip-path: inset(10% 0 30% 0); transform: skew(-3deg); } 100% { clip-path: inset(40% 0 10% 0); transform: skew(3deg); } }
+#term-os { position: fixed; top: 120px; left: 40px; width: 450px; height: 550px; background: rgba(2,2,2,0.95); border: 1px solid var(--accent); z-index: 10000; display: flex; flex-direction: column; transform: scale(0.9); opacity: 0; transition: 0.3s; pointer-events: none; }
 #term-os.visible { transform: scale(1); opacity: 1; pointer-events: all; }
 #term-bar { padding: 12px; background: var(--accent); color: #000; font-family: var(--font-mono); font-weight: 900; font-size: 0.7rem; display: flex; justify-content: space-between; cursor: move !important; }
-#term-content { flex: 1; overflow-y: auto; padding: 20px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--success); line-height: 1.6; }
-#term-input-field { background: #000; border: none; border-top: 1px solid var(--accent); color: #fff; padding: 15px; font-family: var(--font-mono); outline: none; }
-#sys-log { position: fixed; bottom: 40px; right: 40px; width: 300px; font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent); pointer-events: none; z-index: 8000; text-align: right; text-shadow: 1px 0 red, -1px 0 blue; }
-nav { position: fixed; top: 0; width: 100%; height: 90px; display: flex; align-items: center; justify-content: space-between; padding: 0 4%; z-index: 5000; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.9); }
-.brand { font-family: 'Space Grotesk'; font-size: 1.8rem; font-weight: 900; letter-spacing: -2px; }
-.container { width: 94%; max-width: 1800px; margin: 0 auto; }
-.grid-matrix { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 30px; margin-top: 60px; }
-.node { background: var(--surface); border: 1px solid var(--border); padding: 50px; transition: 0.3s; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; min-height: 500px; }
-.node:hover { border-color: var(--accent); background: #090909; transform: scale(1.02); z-index: 10; box-shadow: 0 0 50px rgba(255,85,0,0.2); }
-.node.lazy { border-left: 5px solid var(--lazy); }
-.node.ghost { border-left: 5px solid var(--ghost); }
-.node.pro { border-left: 5px solid var(--accent); }
-.node h3 { font-family: 'Space Grotesk'; font-size: 2.8rem; font-weight: 900; margin: 25px 0; text-transform: uppercase; }
-.node p { color: #777; font-size: 1rem; line-height: 1.8; }
-.data-section { padding: 180px 0; border-top: 1px solid var(--border); background: #010101; }
-.giant-num { font-family: 'Space Grotesk'; font-size: 12rem; font-weight: 900; line-height: 0.8; text-shadow: 4px 0 red, -4px 0 blue; }
-#dot { position: fixed; width: 6px; height: 6px; background: #fff; z-index: 100000; pointer-events: none; border-radius: 50%; mix-blend-mode: difference; }
-#ring { position: fixed; width: 40px; height: 40px; border: 1px solid var(--success); z-index: 99999; pointer-events: none; border-radius: 50%; transition: transform 0.05s linear; mix-blend-mode: difference; }
-.btn { background: var(--accent); color: #000; border: none; padding: 25px; font-family: var(--font-mono); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; width: 100%; transition: 0.2s; position: relative; overflow: hidden; }
-.btn:hover { background: #fff; color: #000; }
+#term-content { flex: 1; overflow-y: auto; padding: 20px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--success); }
+#term-input-field { background: #000; border: none; border-top: 1px solid var(--accent); color: #fff; padding: 15px; font-family: var(--font-mono); }
+#sys-log { position: fixed; bottom: 30px; right: 30px; width: 300px; font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent); pointer-events: none; z-index: 8000; text-align: right; }
+nav { position: fixed; top: 0; width: 100%; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; z-index: 5000; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--border); }
+.brand { font-family: 'Space Grotesk'; font-size: 1.6rem; font-weight: 900; }
+.grid-matrix { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-top: 50px; }
+.node { background: var(--surface); border: 1px solid var(--border); padding: 40px; display: flex; flex-direction: column; justify-content: space-between; min-height: 450px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.node:hover { border-color: #fff; background: #080808; transform: translateY(-5px); }
+.node.lazy { border-left: 4px solid var(--lazy); }
+.node.ghost { border-left: 4px solid var(--ghost); }
+.node.pro { border-left: 4px solid var(--accent); }
+.node h3 { font-family: 'Space Grotesk'; font-size: 2.2rem; font-weight: 900; margin: 20px 0; }
+.node p { color: #666; font-size: 0.9rem; line-height: 1.6; }
+.btn { background: var(--accent); color: #000; border: none; padding: 20px; font-family: var(--font-mono); font-weight: 900; text-transform: uppercase; width: 100%; transition: 0.2s; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.btn:active { transform: scale(0.96); }
 .btn-lazy { background: transparent; border: 1px solid var(--lazy); color: var(--lazy); }
-.btn-lazy:hover { background: var(--lazy); color: #000; }
 .btn-ghost { background: transparent; border: 1px solid var(--ghost); color: var(--ghost); }
-.btn-ghost:hover { background: var(--ghost); color: #000; }
-.reveal { opacity: 0; transform: translateY(50px); transition: 0.8s cubic-bezier(0.25,1,0.25,1); }
+#cursor-dot { position: fixed; width: 4px; height: 4px; background: #fff; z-index: 2000000; pointer-events: none; border-radius: 50%; }
+#cursor-ring { position: fixed; width: 30px; height: 30px; border: 1px solid var(--accent); z-index: 1999999; pointer-events: none; border-radius: 50%; transition: width 0.3s, height 0.3s, background 0.3s; transform: translate(-50%, -50%); }
+.cursor-hover #cursor-ring { width: 50px; height: 50px; background: rgba(255,85,0,0.1); border-color: #fff; }
+.reveal { opacity: 0; transform: translateY(30px); transition: 0.6s ease-out; }
 .reveal.active { opacity: 1; transform: translateY(0); }
 </style>
 </head>
 <body>
 <canvas id="bg-canvas"></canvas>
-<div id="dot"></div>
-<div id="ring"></div>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
 <div id="boot-seq"><div id="boot-text"></div></div>
 <div id="gate-keeper">
 <h1 class="glitch">LOUPA.</h1>
-<p class="mono" style="color:var(--accent); margin-top:20px; letter-spacing:4px;">APEX_PROTOCOL_LOCKED</p>
-<button onclick="L.auth()" class="btn" style="width:300px; margin-top:60px;" onmouseenter="L.beep(600)">DECRYPT_AND_ENTER</button>
+<button onclick="L.auth()" class="btn" style="width:250px; margin-top:40px;">CONNECT_LINK</button>
 </div>
 <div id="term-os">
-<div id="term-bar" onmousedown="L.drag(event)">
-<span>ROOT@LOUPA_OS</span>
-<span onclick="L.toggleT()" style="cursor:pointer !important;">[X]</span>
-</div>
+<div id="term-bar" onmousedown="L.drag(event)"><span>TERMINAL_ROOT</span><span onclick="L.toggleT()">[X]</span></div>
 <div id="term-content"></div>
-<input type="text" id="term-input-field" placeholder="cmd>_ ">
+<input type="text" id="term-input-field" autocomplete="off">
 </div>
 <div id="sys-log"></div>
 <nav>
-<div class="brand">LOUPA<span style="color:var(--accent)">.</span></div>
-<div style="display:flex; gap:50px; align-items:center;">
-<span class="mono" onclick="L.toggleT()" style="cursor:pointer !important; font-size:0.7rem; color:var(--success); border:1px solid var(--success); padding:8px 15px;" onmouseenter="L.beep(800)">EXEC_TERMINAL</span>
-<span id="user-display" class="mono" style="font-size:0.7rem; color:#555;">NULL_ENTITY</span>
+<div class="brand">LOUPA.</div>
+<div style="display:flex; gap:30px;">
+<span class="mono" onclick="L.toggleT()" style="font-size:0.7rem; color:var(--success); border:1px solid var(--success); padding:5px 10px;">SHELL</span>
+<span id="u-id" class="mono" style="font-size:0.7rem; color:#444;">ID_NULL</span>
 </div>
 </nav>
-<main id="main-os" style="display:none; margin-top:120px;">
-<section class="container" style="height:80vh; display:flex; flex-direction:column; justify-content:center;">
+<main id="main-os" style="display:none; padding-top:100px;">
+<section class="container" style="padding: 100px 5%;">
 <div class="reveal">
-<span class="mono" style="color:var(--accent); font-size:0.8rem; letter-spacing:2px;">[ STATUS: APEX_ACTIVE ]</span>
-<h1 class="glitch" style="font-size: clamp(4rem, 14vw, 11rem); line-height:0.8; margin: 30px 0;">OMNI<br>STATE.</h1>
-<p style="max-width:700px; color:#aaa; font-size:1.2rem; line-height:1.9; border-left: 3px solid var(--accent); padding-left:40px;">Audio engine active. Executable commands live. This node represents the absolute mathematical ceiling of single-file hyper-deployment.</p>
-</div>
-</section>
-<section class="container" id="matrix" style="padding-bottom:200px;">
-<div style="display:flex; gap:20px; margin-bottom:80px;" class="reveal">
-<button class="btn btn-lazy" style="width:150px;" onclick="L.f('ALL')" onmouseenter="L.beep(400)">ALL</button>
-<button class="btn btn-lazy" style="width:150px;" onclick="L.f('LAZY')" onmouseenter="L.beep(400)">LAZY</button>
-<button class="btn" style="width:150px; color:#000;" onclick="L.f('PRO')" onmouseenter="L.beep(500)">PRO</button>
-<button class="btn btn-ghost" style="width:150px;" onclick="L.f('GHOST')" onmouseenter="L.beep(600)">GHOST</button>
+<h1 class="glitch" style="font-size: 8vw;">PRECISION.</h1>
+<p style="max-width:600px; color:#555; margin-top:20px;">v21.0: Zero latency cursor engine. Snap-to-target button physics. 100% Execution density.</p>
 </div>
 <div class="grid-matrix" id="grid"></div>
-</section>
-<section class="data-section">
-<div class="container">
-<div class="reveal" style="display:flex; align-items:flex-end; gap:80px; margin-bottom:150px;">
-<div class="giant-num" id="rating">4.3</div>
-<div>
-<div style="color:var(--accent); font-size:2.2rem; letter-spacing:15px;">★★★★☆</div>
-<div class="mono" id="votes" style="color:#777; margin-top:20px; font-size:1rem;">752_SECURE_NODES</div>
-</div>
-</div>
-<div id="rev-stream" class="grid-matrix" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));"></div>
-<div class="reveal" style="margin-top:150px; background:#000; padding:100px; border:1px solid var(--border); box-shadow: inset 0 0 50px rgba(255,85,0,0.05);">
-<h4 class="mono" style="margin-bottom:50px; color:var(--success); font-size:1.2rem;">> EXECUTE_CHAIN_WRITE</h4>
-<textarea id="rev-text" style="width:100%; height:150px; background:var(--surface); border:1px solid var(--accent); color:#fff; padding:30px; outline:none; font-family:inherit; margin-bottom:50px; font-size:1.2rem;" onkeydown="L.beep(300)"></textarea>
-<button class="btn" onclick="L.sub()" onmouseenter="L.beep(800)">ENCRYPT_AND_BROADCAST</button>
-</div>
-</div>
 </section>
 </main>
 <script>
 const L=(()=>{
 firebase.initializeApp({apiKey:"AIzaSyDwkqu_JpelnceEjwbdP76hzwQ1JMFI2D0",authDomain:"loupa-d2ca2.firebaseapp.com",projectId:"loupa-d2ca2",storageBucket:"loupa-d2ca2.firebasestorage.app",messagingSenderId:"1062889452519",appId:"1:1062889452519:web:a412e262ba0981d3c3c342"});
-const db=firebase.firestore(),auth=firebase.auth(),actx=new(window.AudioContext||window.webkitAudioContext)();
-const A=[{n:"Core Colors",p:0,c:"LAZY",d:"Hex architecture for rapid injection."},{n:"Social Graph",p:0,c:"LAZY",d:"Ego-driven authority mapping."},{n:"Email Logic",p:0,c:"LAZY",d:"Conversion scripts built for SaaS."},{n:"Vector Kit",p:0,c:"LAZY",d:"SVG wireframes for stealth builds."},{n:"SaaS Kernel",p:499,c:"PRO",d:"React/Node foundational block."},{n:"Data Leech",p:300,c:"PRO",d:"Autonomous metric extraction."},{n:"SEO Spider",p:150,c:"PRO",d:"Algorithmic crawler optimization."},{n:"Auth Wall",p:200,c:"PRO",d:"JWT identity verification matrix."},{n:"Ghost API",p:1200,c:"GHOST",d:"Decentralized endpoint cloaking."},{n:"Void Miner",p:2500,c:"GHOST",d:"Dark-pool metadata synthesis."},{n:"Zero Day",p:5000,c:"GHOST",d:"Pen-testing algorithmic payload."},{n:"Phantom",p:3500,c:"GHOST",d:"Offshore encrypted relay node."}];
-let dO=null,oX=0,oY=0;
-document.onmousemove=e=>{document.getElementById('dot').style.left=e.clientX+'px';document.getElementById('dot').style.top=e.clientY+'px';document.getElementById('ring').style.transform=`translate(${e.clientX-20}px, ${e.clientY-20}px)`;if(dO){dO.style.left=(e.clientX-oX)+'px';dO.style.top=(e.clientY-oY)+'px';}};
-document.onmouseup=()=>dO=null;
-const bS=["INITIATING LOUPA APEX v20.0...","MOUNTING VIRTUAL DOM... [OK]","BYPASSING MAINFRAME ENCRYPTION... [OK]","ESTABLISHING NEURAL LINK... [OK]","BOOT SEQUENCE COMPLETE."];
-return{
-beep(f){if(actx.state==='suspended')actx.resume();const o=actx.createOscillator(),g=actx.createGain();o.type='square';o.frequency.value=f;g.gain.setValueAtTime(0.05,actx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,actx.currentTime+0.1);o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+0.1);},
-boot(){let i=0;const t=document.getElementById('boot-text');const iv=setInterval(()=>{if(i<bS.length){t.innerHTML+=bS[i]+'\n';this.beep(900+i*100);i++;}else{clearInterval(iv);setTimeout(()=>{document.getElementById('boot-seq').style.display='none';document.getElementById('gate-keeper').style.display='flex';this.beep(1200);},500);}},400);},
-auth(){this.beep(800);auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(r=>{document.getElementById('gate-keeper').style.display='none';document.getElementById('main-os').style.display='block';document.getElementById('user-display').innerText=`OP_${r.user.displayName.toUpperCase().replace(' ','_')}`;this.start();});},
-toggleT(){this.beep(1000);document.getElementById('term-os').classList.toggle('visible');},
+const db=firebase.firestore(),auth=firebase.auth(),actx=new AudioContext();
+const A=[{n:"Kernel Colors",c:"LAZY",p:0},{n:"Social Mesh",c:"LAZY",p:0},{n:"Email Gate",c:"LAZY",p:0},{n:"SaaS Base",c:"PRO",p:499},{n:"Data Leech",c:"PRO",p:300},{n:"Ghost API",c:"GHOST",p:1200},{n:"Void Link",c:"GHOST",p:2500}];
+let dO=null,oX=0,oY=0,m={x:0,y:0},t={x:0,y:0};
+const bP=f=>{const o=actx.createOscillator(),g=actx.createGain();o.type='square';o.frequency.value=f;g.gain.setTargetAtTime(0.05,actx.currentTime,0.01);o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+0.05);};
+return {
+auth(){bP(800);auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(r=>{document.getElementById('gate-keeper').style.display='none';document.getElementById('main-os').style.display='block';document.getElementById('u-id').innerText=`OP_${r.user.displayName.toUpperCase()}`;this.start();});},
+toggleT(){bP(1000);document.getElementById('term-os').classList.toggle('visible');},
 drag(e){dO=document.getElementById('term-os');oX=e.clientX-dO.getBoundingClientRect().left;oY=e.clientY-dO.getBoundingClientRect().top;},
 start(){
-db.collection("global_chat").orderBy("ts","desc").limit(20).onSnapshot(s=>{document.getElementById('term-content').innerHTML=s.docs.reverse().map(d=>`<div><span style="color:var(--accent)">${d.data().user}@sys:</span> ${d.data().text}</div>`).join('');document.getElementById('term-content').scrollTop=9999;});
-document.getElementById('term-input-field').onkeydown=e=>{this.beep(600);if(e.key==='Enter'&&e.target.value){let v=e.target.value;if(v==='/clear'){db.collection("global_chat").add({user:'SYS',text:'User cleared local buffer.',ts:firebase.firestore.FieldValue.serverTimestamp()});}else if(v==='/ghost'){document.documentElement.style.setProperty('--accent','#b0f');db.collection("global_chat").add({user:'SYS',text:'Ghost protocol initiated.',ts:firebase.firestore.FieldValue.serverTimestamp()});}else{db.collection("global_chat").add({user:auth.currentUser.displayName.split(' ')[0],text:v,ts:firebase.firestore.FieldValue.serverTimestamp()});}e.target.value='';}};
-db.collection("reviews").orderBy("ts","desc").onSnapshot(s=>{let r=752*4.3,v=752+s.size;document.getElementById('rev-stream').innerHTML=s.docs.map(d=>{r+=5;return `<div class="node" style="min-height:180px;padding:40px;"><b style="color:var(--success)">OP_${d.id.substring(0,8)}</b><p style="margin-top:15px;color:#aaa;">"${d.data().text}"</p></div>`;}).join('');document.getElementById('rating').innerText=(r/v).toFixed(1);document.getElementById('votes').innerText=`${v}_VERIFIED_OPS`;});
-this.f('ALL');this.sLog();
+db.collection("global_chat").orderBy("ts","desc").limit(15).onSnapshot(s=>{document.getElementById('term-content').innerHTML=s.docs.reverse().map(d=>`<div>> ${d.data().text}</div>`).join('');});
+document.getElementById('term-input-field').onkeydown=e=>{if(e.key==='Enter'&&e.target.value){db.collection("global_chat").add({text:e.target.value,ts:firebase.firestore.FieldValue.serverTimestamp()});e.target.value='';bP(600);}};
+document.getElementById('grid').innerHTML=A.map(a=>`<div class="node ${a.c.toLowerCase()} reveal"><div><span class="mono" style="font-size:0.6rem; color:var(--accent);">// ${a.c}</span><h3>${a.n}</h3><p>Secure deployment ready. Encrypted at REST.</p></div><div style="margin-top:30px;"><div class="mono" style="font-size:1.8rem; margin-bottom:15px;">${a.p===0?'FREE':'$'+a.p}</div><button class="btn ${a.c==='LAZY'?'btn-lazy':(a.c==='GHOST'?'btn-ghost':'')}" onmouseenter="L.hov(1)" onmouseleave="L.hov(0)">DEPLOY</button></div></div>`).join('');
+this.log();this.reveal();
 },
-f(c){document.getElementById('grid').innerHTML=(c==='ALL'?A:A.filter(a=>a.c===c)).map(a=>`<div class="node ${a.c.toLowerCase()} reveal active"><div><span class="mono" style="font-size:0.65rem;color:var(--accent);">// ${a.c}_MODULE</span><h3>${a.n}</h3><p>${a.d}</p></div><div style="margin-top:50px;"><div class="mono" style="font-size:2.5rem;margin-bottom:25px;">${a.p===0?'FREE':'$'+a.p}</div><button class="btn ${a.c==='LAZY'?'btn-lazy':(a.c==='GHOST'?'btn-ghost':'')}" onmouseenter="L.beep(700)">INJECT_PAYLOAD</button></div></div>`).join('');},
-sub(){const t=document.getElementById('rev-text').value;if(t){db.collection("reviews").add({user:auth.currentUser.displayName,text:t,ts:firebase.firestore.FieldValue.serverTimestamp()});document.getElementById('rev-text').value='';this.beep(1500);}},
-sLog(){const g=["SYS_PING_OK","KEY_EXCHANGE_COMPLETE","GHOST_ROUTING_ACTIVE","MEMORY_ALLOC_STABLE","FIREWALL_BYPASS_NULL"];setInterval(()=>{const L=document.getElementById('sys-log'),d=document.createElement('div');d.innerText=`[${new Date().toISOString().split('T')[1].slice(0,-1)}] > ${g[Math.floor(Math.random()*g.length)]}`;L.prepend(d);if(L.children.length>8)L.lastChild.remove();},1800);}
+hov(s){s?document.body.classList.add('cursor-hover'):document.body.classList.remove('cursor-hover');if(s)bP(400);},
+log(){setInterval(()=>{const l=document.getElementById('sys-log'),d=document.createElement('div');d.innerText=`> EVT_${Math.random().toString(16).slice(2,8).toUpperCase()}_OK`;l.prepend(d);if(l.children.length>5)l.lastChild.remove();},2000);},
+reveal(){const o=new IntersectionObserver(e=>e.forEach(i=>{if(i.isIntersecting)i.target.classList.add('active');}));document.querySelectorAll('.reveal').forEach(e=>o.observe(e));},
+tick(){
+t.x+=(m.x-t.x)*0.15;t.y+=(m.y-t.y)*0.15;
+document.getElementById('cursor-dot').style.transform=`translate(${m.x}px, ${m.y}px)`;
+document.getElementById('cursor-ring').style.left=t.x+'px';document.getElementById('cursor-ring').style.top=t.y+'px';
+if(dO){dO.style.left=(m.x-oX)+'px';dO.style.top=(m.y-oY)+'px';}
+requestAnimationFrame(()=>this.tick());
+},
+setM(e){m.x=e.clientX;m.y=e.clientY;}
 };})();
 window.onload=()=>{
-L.boot();
+const tX=document.getElementById('boot-text');const seq=["LOADING LOUPA_OS...","GATHERING NODES...","HARDWARE_ACCELERATION: ON","READY."];
+let i=0;const iv=setInterval(()=>{if(i<seq.length){tX.innerHTML+=seq[i]+"<br>";i++;}else{clearInterval(iv);document.getElementById('boot-seq').style.display='none';document.getElementById('gate-keeper').style.display='flex';}},300);
+window.onmousemove=e=>L.setM(e);
+window.onclick=()=>L.beep?L.beep(200):null;
+L.tick();
 const c=document.getElementById('bg-canvas'),x=c.getContext('2d');c.width=window.innerWidth;c.height=window.innerHeight;
-let p=Array.from({length:80},()=>({x:Math.random()*c.width,y:Math.random()*c.height,z:Math.random()*2+0.1}));
-function d(){x.fillStyle='rgba(0,0,0,0.2)';x.fillRect(0,0,c.width,c.height);x.strokeStyle='rgba(255,85,0,0.3)';
-p.forEach(i=>{i.y+=i.z;if(i.y>c.height)i.y=0;x.beginPath();x.moveTo(i.x,i.y);x.lineTo(i.x,i.y+i.z*10);x.lineWidth=i.z;x.stroke();});requestAnimationFrame(d);}d();
-const o=new IntersectionObserver(e=>e.forEach(i=>{if(i.isIntersecting)i.target.classList.add('active');}));document.querySelectorAll('.reveal').forEach(e=>o.observe(e));
+let p=Array.from({length:50},()=>({x:Math.random()*c.width,y:Math.random()*c.height,s:Math.random()*1+0.5}));
+function d(){x.clearRect(0,0,c.width,c.height);x.fillStyle='rgba(255,85,0,0.4)';p.forEach(i=>{i.y-=i.s;if(i.y<0)i.y=c.height;x.fillRect(i.x,i.y,1,1);});requestAnimationFrame(d);}d();
 };
 </script>
 </body>
