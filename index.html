@@ -1,268 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LOUPA // OMNI_HORIZON_v18.0</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700;900&family=JetBrains+Mono:wght@100;400;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg: #000000;
-            --surface: #050505;
-            --accent: #ff5500;
-            --lazy: #0088ff;
-            --ghost: #bc00ff;
-            --success: #00ffaa;
-            --border: rgba(255, 255, 255, 0.08);
-            --font-mono: 'JetBrains Mono', monospace;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
-        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-
-        /* --- VISUAL ENGINE --- */
-        #render-canvas { position: fixed; inset: 0; z-index: -1; opacity: 0.4; }
-        .scanline { position: fixed; inset: 0; height: 100%; width: 100%; background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 10000; background-size: 100% 2px, 3px 100%; pointer-events: none; }
-
-        /* --- DRAGGABLE TERMINAL --- */
-        #term-os {
-            position: fixed; top: 150px; left: 50px; width: 400px; height: 500px;
-            background: rgba(0,0,0,0.9); border: 1px solid var(--border);
-            z-index: 9000; display: flex; flex-direction: column; backdrop-filter: blur(20px);
-            box-shadow: 0 30px 60px rgba(0,0,0,1); transform: scale(0.9); opacity: 0; transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-        }
-        #term-os.visible { transform: scale(1); opacity: 1; }
-        #term-bar { padding: 10px 15px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; cursor: move !important; }
-        #term-content { flex: 1; overflow-y: auto; padding: 20px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--success); }
-        #term-input-field { background: transparent; border: none; border-top: 1px solid var(--border); color: #fff; padding: 15px; font-family: var(--font-mono); outline: none; }
-
-        /* --- SYSTEM LOG (LEFT SIDE) --- */
-        #sys-log { position: fixed; bottom: 40px; right: 40px; width: 250px; font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-dim); pointer-events: none; z-index: 8000; text-align: right; }
-
-        /* --- AUTH & NAV --- */
-        #gate-keeper { position: fixed; inset: 0; background: #000; z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        nav { position: fixed; top: 0; width: 100%; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; z-index: 5000; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.5); backdrop-filter: blur(15px); }
-        .brand { font-family: 'Space Grotesk'; font-size: 1.4rem; font-weight: 900; letter-spacing: -1px; }
-
-        /* --- MATRIX GRID --- */
-        .container { width: 90%; max-width: 1500px; margin: 0 auto; }
-        .grid-matrix { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-top: 50px; }
-        .node { 
-            background: var(--surface); border: 1px solid var(--border); padding: 50px; 
-            transition: 0.4s; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; min-height: 520px;
-        }
-        .node:hover { border-color: var(--accent); background: #080808; transform: translateY(-5px); }
-        .node.lazy { border-top: 4px solid var(--lazy); }
-        .node.ghost { border-top: 4px solid var(--ghost); }
-        .node.pro { border-top: 4px solid var(--accent); }
-        .node h3 { font-family: 'Space Grotesk'; font-size: 2.2rem; font-weight: 900; margin: 20px 0; }
-        .node p { color: #666; font-size: 0.9rem; line-height: 1.6; }
-
-        /* --- DATA ANALYTICS --- */
-        .data-section { padding: 150px 0; border-top: 1px solid var(--border); background: #020202; }
-        .giant-num { font-family: 'Space Grotesk'; font-size: 9rem; font-weight: 900; line-height: 1; }
-
-        /* --- INTERACTIVE CURSOR --- */
-        #dot { position: fixed; width: 4px; height: 4px; background: #fff; z-index: 100000; pointer-events: none; border-radius: 50%; }
-        #ring { position: fixed; width: 30px; height: 30px; border: 1px solid var(--accent); z-index: 99999; pointer-events: none; border-radius: 50%; transition: 0.1s; }
-
-        .btn { background: var(--accent); color: #000; border: none; padding: 20px; font-family: var(--font-mono); font-weight: 700; text-transform: uppercase; cursor: pointer !important; width: 100%; transition: 0.3s; }
-        .btn:hover { background: #fff; }
-        .btn-lazy { background: transparent; border: 1px solid var(--lazy); color: var(--lazy); }
-        .btn-ghost { background: transparent; border: 1px solid var(--ghost); color: var(--ghost); }
-
-        .reveal { opacity: 0; transform: translateY(30px); transition: 0.8s var(--ease-in-out); }
-        .reveal.active { opacity: 1; transform: translateY(0); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>LOUPA // OMNI_CORE_v19.0_UNFILTERED</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700;900&family=JetBrains+Mono:wght@100;400;700&display=swap" rel="stylesheet">
+<style>
+:root { --bg: #000; --surface: #060606; --accent: #ff5500; --lazy: #0088ff; --ghost: #bc00ff; --success: #00ffaa; --border: rgba(255,255,255,0.08); --font-mono: 'JetBrains Mono', monospace; }
+* { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
+body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+#render-canvas { position: fixed; inset: 0; z-index: -1; opacity: 0.5; }
+.scanline { position: fixed; inset: 0; background: linear-gradient(to bottom, rgba(18,16,16,0) 50%, rgba(0,0,0,0.3) 50%), linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06)); z-index: 10000; background-size: 100% 2px, 3px 100%; pointer-events: none; }
+#term-os { position: fixed; top: 150px; left: 50px; width: 420px; height: 550px; background: rgba(0,0,0,0.95); border: 1px solid var(--accent); z-index: 9000; display: flex; flex-direction: column; backdrop-filter: blur(25px); box-shadow: 0 0 50px rgba(255,85,0,0.1); transform: scale(0.9); opacity: 0; transition: transform 0.4s, opacity 0.4s; }
+#term-os.visible { transform: scale(1); opacity: 1; }
+#term-bar { padding: 12px 15px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; cursor: move !important; user-select: none; }
+#term-content { flex: 1; overflow-y: auto; padding: 20px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--success); line-height: 1.5; }
+#term-input-field { background: transparent; border: none; border-top: 1px solid var(--border); color: #fff; padding: 15px; font-family: var(--font-mono); outline: none; }
+#sys-log { position: fixed; bottom: 40px; right: 40px; width: 280px; font-family: var(--font-mono); font-size: 0.6rem; color: #555; pointer-events: none; z-index: 8000; text-align: right; }
+#gate-keeper { position: fixed; inset: 0; background: #000; z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+nav { position: fixed; top: 0; width: 100%; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; z-index: 5000; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); }
+.brand { font-family: 'Space Grotesk'; font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; }
+.container { width: 92%; max-width: 1600px; margin: 0 auto; }
+.grid-matrix { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-top: 50px; }
+.node { background: var(--surface); border: 1px solid var(--border); padding: 50px; transition: 0.4s; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; min-height: 480px; }
+.node:hover { border-color: var(--accent); background: #0a0a0a; transform: translateY(-8px); box-shadow: 0 10px 30px rgba(255,85,0,0.1); }
+.node.lazy { border-top: 4px solid var(--lazy); }
+.node.ghost { border-top: 4px solid var(--ghost); }
+.node.pro { border-top: 4px solid var(--accent); }
+.node h3 { font-family: 'Space Grotesk'; font-size: 2.4rem; font-weight: 900; margin: 20px 0; }
+.node p { color: #888; font-size: 0.95rem; line-height: 1.7; }
+.data-section { padding: 150px 0; border-top: 1px solid var(--border); background: #020202; }
+.giant-num { font-family: 'Space Grotesk'; font-size: 10rem; font-weight: 900; line-height: 0.9; }
+#dot { position: fixed; width: 5px; height: 5px; background: #fff; z-index: 100000; pointer-events: none; border-radius: 50%; }
+#ring { position: fixed; width: 36px; height: 36px; border: 1px solid var(--accent); z-index: 99999; pointer-events: none; border-radius: 50%; transition: transform 0.1s ease-out; }
+.btn { background: var(--accent); color: #000; border: none; padding: 22px; font-family: var(--font-mono); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; width: 100%; transition: 0.3s; }
+.btn:hover { background: #fff; transform: scale(1.02); }
+.btn-lazy { background: transparent; border: 1px solid var(--lazy); color: var(--lazy); }
+.btn-lazy:hover { background: var(--lazy); color: #000; }
+.btn-ghost { background: transparent; border: 1px solid var(--ghost); color: var(--ghost); }
+.btn-ghost:hover { background: var(--ghost); color: #000; }
+.reveal { opacity: 0; transform: translateY(40px); transition: 0.9s cubic-bezier(0.19,1,0.22,1); }
+.reveal.active { opacity: 1; transform: translateY(0); }
+</style>
 </head>
 <body>
-
-    <canvas id="render-canvas"></canvas>
-    <div class="scanline"></div>
-    <div id="dot"></div>
-    <div id="ring"></div>
-
-    <div id="gate-keeper">
-        <h1 class="brand" style="font-size: 4rem;">LOUPA<span>.</span></h1>
-        <p class="mono" style="color:var(--border); margin-top:10px;">// OMNI_HORIZON_v18_LINK_REQUIRED</p>
-        <button onclick="Loupa.auth()" class="btn" style="width:250px; margin-top:40px;">INITIALIZE_SESSION</button>
-    </div>
-
-    <div id="term-os">
-        <div id="term-bar">
-            <span class="mono" style="font-size:0.6rem;">NEURAL_COMMS_v18</span>
-            <span onclick="Loupa.toggleTerm()" style="cursor:pointer !important;">[ _ ]</span>
-        </div>
-        <div id="term-content"></div>
-        <input type="text" id="term-input-field" placeholder="broadcast@loupa:~$ ">
-    </div>
-
-    <div id="sys-log"></div>
-
-    <nav>
-        <div class="brand">LOUPA<span>.</span></div>
-        <div style="display:flex; gap:30px;">
-            <span class="mono" onclick="Loupa.toggleTerm()" style="cursor:pointer !important; font-size:0.6rem; color:var(--accent);">[ TERMINAL ]</span>
-            <span id="user-display" class="mono" style="font-size:0.6rem; color:rgba(255,255,255,0.3);">AWAITING_LINK...</span>
-        </div>
-    </nav>
-
-    <main id="main-os" style="display:none; margin-top:100px;">
-        <section class="container" style="height:70vh; display:flex; flex-direction:column; justify-content:center;">
-            <div class="reveal">
-                <span class="mono" style="color:var(--accent); font-size:0.7rem;">STATUS: OPERATIONAL</span>
-                <h1 style="font-family:'Space Grotesk'; font-size: clamp(3rem, 12vw, 8rem); font-weight:900; line-height:0.85; margin: 20px 0;">OMNI<br>REGISTRY<span>.</span></h1>
-                <p style="max-width:600px; color:#666; font-size:1.1rem; line-height:1.7; border-left: 1px solid var(--accent); padding-left:30px;">The definitive asset protocol for high-latency venture growth. Access premium SaaS infrastructure, neural mining agents, and lazy-tier deployment kits.</p>
-            </div>
-        </section>
-
-        <section class="container" id="matrix" style="padding-bottom:150px;">
-            <div style="display:flex; gap:10px; margin-bottom:50px;" class="reveal">
-                <button class="btn btn-lazy" style="width:120px;" onclick="Loupa.filter('ALL')">ALL</button>
-                <button class="btn btn-lazy" style="width:120px;" onclick="Loupa.filter('LAZY')">LAZY</button>
-                <button class="btn" style="width:120px; color:#000;" onclick="Loupa.filter('PRO')">PRO</button>
-                <button class="btn btn-ghost" style="width:120px;" onclick="Loupa.filter('GHOST')">GHOST</button>
-            </div>
-            <div class="grid-matrix" id="grid"></div>
-        </section>
-
-        <section class="data-section">
-            <div class="container">
-                <div class="reveal" style="display:flex; align-items:flex-end; gap:50px; margin-bottom:100px;">
-                    <div class="giant-num" id="rating">4.3</div>
-                    <div>
-                        <div style="color:var(--accent); font-size:1.5rem; letter-spacing:8px;">★★★★☆</div>
-                        <div class="mono" id="votes" style="color:#444; margin-top:10px;">752_NODES_REPORTING</div>
-                    </div>
-                </div>
-                <div id="rev-stream" class="grid-matrix" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));"></div>
-                <div class="reveal" style="margin-top:100px; background:var(--surface); padding:60px; border:1px solid var(--border);">
-                    <h4 class="mono" style="margin-bottom:30px; color:var(--accent);">BROADCAST_REPUTATION_LOG</h4>
-                    <textarea id="rev-text" style="width:100%; height:100px; background:#000; border:1px solid var(--border); color:#fff; padding:20px; outline:none; font-family:inherit; margin-bottom:30px;"></textarea>
-                    <button class="btn" onclick="Loupa.submitRev()">SYNC_TO_CHAIN</button>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <script>
-    const Loupa = (() => {
-        const config = {
-            apiKey: "AIzaSyDwkqu_JpelnceEjwbdP76hzwQ1JMFI2D0",
-            authDomain: "loupa-d2ca2.firebaseapp.com",
-            projectId: "loupa-d2ca2",
-            storageBucket: "loupa-d2ca2.firebasestorage.app",
-            messagingSenderId: "1062889452519",
-            appId: "1:1062889452519:web:a412e262ba0981d3c3c342"
-        };
-        firebase.initializeApp(config);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-
-        const assets = [
-            { n: "Color Core", p: 0, c: "LAZY", d: "5 hex palettes for rapid branding." },
-            { n: "Social Bio", p: 0, c: "LAZY", d: "High-authority profiles for X/LinkedIn." },
-            { n: "Email v1", p: 0, c: "LAZY", d: "Cold outreach scripts with 12% conversion." },
-            { n: "SaaS Frame", p: 499, c: "PRO", d: "Full React/Firebase backend architecture." },
-            { n: "Data Miner", p: 300, c: "PRO", d: "Autonomous Python mining agent." },
-            { n: "SEO Robot", p: 150, c: "PRO", d: "Auto-ranking and indexing script." },
-            { n: "Ghost API", p: 1200, c: "GHOST", d: "Decentralized endpoint routing." },
-            { n: "Void Scraper", p: 2500, c: "GHOST", d: "Dark-pool data acquisition agent." }
-        ];
-
-        return {
-            auth() {
-                auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(res => {
-                    document.getElementById('gate-keeper').style.display = 'none';
-                    document.getElementById('main-os').style.display = 'block';
-                    document.getElementById('user-display').innerText = `NODE: ${res.user.displayName.toUpperCase()}`;
-                    this.boot();
-                });
-            },
-            toggleTerm() { document.getElementById('term-os').classList.toggle('visible'); },
-            boot() {
-                // Chat Engine
-                db.collection("global_chat").orderBy("ts", "desc").limit(15).onSnapshot(s => {
-                    document.getElementById('term-content').innerHTML = s.docs.reverse().map(d => `<div><b>[${d.data().user}]</b>: ${d.data().text}</div>`).join('');
-                    document.getElementById('term-content').scrollTop = 9999;
-                });
-                document.getElementById('term-input-field').onkeydown = e => {
-                    if(e.key === 'Enter' && e.target.value) {
-                        db.collection("global_chat").add({ user: auth.currentUser.displayName.split(' ')[0], text: e.target.value, ts: firebase.firestore.FieldValue.serverTimestamp() });
-                        e.target.value = '';
-                    }
-                };
-                // Reviews Engine
-                db.collection("reviews").orderBy("ts", "desc").onSnapshot(s => {
-                    let curR = 752 * 4.3, curV = 752 + s.size;
-                    document.getElementById('rev-stream').innerHTML = s.docs.map(d => {
-                        curR += 5;
-                        return `<div class="node" style="min-height:180px;"><b>NODE_${d.id.substring(0,4)}</b><p>"${d.data().text}"</p></div>`;
-                    }).join('');
-                    document.getElementById('rating').innerText = (curR/curV).toFixed(1);
-                    document.getElementById('votes').innerText = `${curV}_NODES_REPORTING`;
-                });
-                this.filter('ALL');
-                this.startLog();
-            },
-            filter(cat) {
-                const data = cat === 'ALL' ? assets : assets.filter(a => a.c === cat);
-                document.getElementById('grid').innerHTML = data.map(a => `
-                    <div class="node ${a.c.toLowerCase()} reveal active">
-                        <div><span class="mono" style="font-size:0.6rem; color:var(--accent);">// ${a.c}</span><h3>${a.n}</h3><p>${a.d}</p></div>
-                        <div style="margin-top:30px;"><div class="mono" style="font-size:2rem; margin-bottom:20px;">${a.p===0?'FREE':'$'+a.p}</div>
-                        <button class="btn ${a.c==='LAZY'?'btn-lazy':(a.c==='GHOST'?'btn-ghost':'')}">DEPLOY</button></div>
-                    </div>`).join('');
-            },
-            submitRev() {
-                const t = document.getElementById('rev-text').value;
-                if(t) db.collection("reviews").add({ user: auth.currentUser.displayName, text: t, ts: firebase.firestore.FieldValue.serverTimestamp() });
-                document.getElementById('rev-text').value = '';
-            },
-            startLog() {
-                const logs = ["NODE_LINK_ESTABLISHED", "ENCRYPTION_LAYER_ACTIVE", "DATA_STREAM_SYNCED", "OMNI_CORE_READY"];
-                setInterval(() => {
-                    const l = document.getElementById('sys-log');
-                    const newLog = document.createElement('div');
-                    newLog.innerText = `> ${logs[Math.floor(Math.random()*logs.length)]} [${new Date().toLocaleTimeString()}]`;
-                    l.prepend(newLog);
-                    if(l.children.length > 5) l.lastChild.remove();
-                }, 3000);
-            }
-        };
-    })();
-
-    // --- VISUAL ENGINE 2.0 ---
-    window.onload = () => {
-        const c = document.getElementById('render-canvas'), ctx = c.getContext('2d');
-        c.width = window.innerWidth; c.height = window.innerHeight;
-        let points = Array.from({length: 40}, () => ({x: Math.random()*c.width, y: Math.random()*c.height, vx: Math.random()-0.5, vy: Math.random()-0.5}));
-        function draw() {
-            ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.fillRect(0,0,c.width,c.height);
-            ctx.strokeStyle = 'rgba(255,85,0,0.15)'; ctx.lineWidth = 0.5;
-            points.forEach((p, i) => {
-                p.x += p.vx; p.y += p.vy;
-                if(p.x<0||p.x>c.width) p.vx*=-1; if(p.y<0||p.y>c.height) p.vy*=-1;
-                points.slice(i+1).forEach(p2 => {
-                    let d = Math.hypot(p.x-p2.x, p.y-p2.y);
-                    if(d < 200) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); }
-                });
-            });
-            requestAnimationFrame(draw);
-        }
-        draw();
-        document.onmousemove = e => {
-            document.getElementById('dot').style.left = e.clientX+'px'; document.getElementById('dot').style.top = e.clientY+'px';
-            document.getElementById('ring').style.transform = `translate(${e.clientX-15}px, ${e.clientY-15}px)`;
-        };
-        const obs = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); }));
-        document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-    };
-    </script>
+<canvas id="render-canvas"></canvas>
+<div class="scanline"></div>
+<div id="dot"></div>
+<div id="ring"></div>
+<div id="gate-keeper">
+<h1 class="brand" style="font-size: 5rem;">LOUPA<span>.</span></h1>
+<p class="mono" style="color:var(--text-dim); margin-top:15px;">OMNI_CORE_v19_NO_PADDING</p>
+<button onclick="Loupa.auth()" class="btn" style="width:280px; margin-top:50px;">INITIALIZE_SYSTEM</button>
+</div>
+<div id="term-os">
+<div id="term-bar" onmousedown="Loupa.drag(event)">
+<span class="mono" style="font-size:0.6rem; color:var(--accent);">ROOT_ACCESS_TERMINAL</span>
+<span onclick="Loupa.toggleTerm()" style="cursor:pointer !important; color:#fff;">[ CLOSE ]</span>
+</div>
+<div id="term-content"></div>
+<input type="text" id="term-input-field" placeholder="execute@loupa:~$ ">
+</div>
+<div id="sys-log"></div>
+<nav>
+<div class="brand">LOUPA<span>.</span></div>
+<div style="display:flex; gap:40px;">
+<span class="mono" onclick="Loupa.toggleTerm()" style="cursor:pointer !important; font-size:0.65rem; color:var(--accent);">[ OPEN_TERMINAL ]</span>
+<span id="user-display" class="mono" style="font-size:0.65rem; color:#666;">AWAITING_AUTH</span>
+</div>
+</nav>
+<main id="main-os" style="display:none; margin-top:100px;">
+<section class="container" style="height:75vh; display:flex; flex-direction:column; justify-content:center;">
+<div class="reveal">
+<span class="mono" style="color:var(--accent); font-size:0.75rem;">SYSTEM_INTEGRITY: 100%</span>
+<h1 style="font-family:'Space Grotesk'; font-size: clamp(3.5rem, 12vw, 9rem); font-weight:900; line-height:0.85; margin: 25px 0;">RAW<br>PROTOCOL<span>.</span></h1>
+<p style="max-width:650px; color:#999; font-size:1.15rem; line-height:1.8; border-left: 2px solid var(--accent); padding-left:30px;">Zero padding. Zero comments. Pure execution. The definitive high-density registry for elite digital operatives.</p>
+</div>
+</section>
+<section class="container" id="matrix" style="padding-bottom:180px;">
+<div style="display:flex; gap:15px; margin-bottom:60px;" class="reveal">
+<button class="btn btn-lazy" style="width:130px;" onclick="Loupa.filter('ALL')">ALL</button>
+<button class="btn btn-lazy" style="width:130px;" onclick="Loupa.filter('LAZY')">LAZY</button>
+<button class="btn" style="width:130px; color:#000;" onclick="Loupa.filter('PRO')">PRO</button>
+<button class="btn btn-ghost" style="width:130px;" onclick="Loupa.filter('GHOST')">GHOST</button>
+</div>
+<div class="grid-matrix" id="grid"></div>
+</section>
+<section class="data-section">
+<div class="container">
+<div class="reveal" style="display:flex; align-items:flex-end; gap:60px; margin-bottom:120px;">
+<div class="giant-num" id="rating">4.3</div>
+<div>
+<div style="color:var(--accent); font-size:1.8rem; letter-spacing:10px;">★★★★☆</div>
+<div class="mono" id="votes" style="color:#666; margin-top:15px; font-size:0.9rem;">752_SECURE_NODES</div>
+</div>
+</div>
+<div id="rev-stream" class="grid-matrix" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));"></div>
+<div class="reveal" style="margin-top:120px; background:var(--surface); padding:80px; border:1px solid var(--border);">
+<h4 class="mono" style="margin-bottom:40px; color:var(--accent); font-size:1rem;">INJECT_TELEMETRY_DATA</h4>
+<textarea id="rev-text" style="width:100%; height:120px; background:#000; border:1px solid var(--border); color:#fff; padding:25px; outline:none; font-family:inherit; margin-bottom:40px; font-size:1.1rem;"></textarea>
+<button class="btn" onclick="Loupa.submitRev()">COMMIT_TO_LEDGER</button>
+</div>
+</div>
+</section>
+</main>
+<script>
+const Loupa=(()=>{
+firebase.initializeApp({apiKey:"AIzaSyDwkqu_JpelnceEjwbdP76hzwQ1JMFI2D0",authDomain:"loupa-d2ca2.firebaseapp.com",projectId:"loupa-d2ca2",storageBucket:"loupa-d2ca2.firebasestorage.app",messagingSenderId:"1062889452519",appId:"1:1062889452519:web:a412e262ba0981d3c3c342"});
+const db=firebase.firestore(),auth=firebase.auth();
+const assets=[{n:"Color Core",p:0,c:"LAZY",d:"5 hex palettes for rapid deployment."},{n:"Social Map",p:0,c:"LAZY",d:"High-authority profile architecture."},{n:"Email Engine",p:0,c:"LAZY",d:"Cold outreach logic gates."},{n:"UI Micro",p:0,c:"LAZY",d:"Minimalist SVG vector injection."},{n:"SaaS Frame",p:499,c:"PRO",d:"React/Firebase unified backend."},{n:"Data Miner",p:300,c:"PRO",d:"Python scraping heuristic agent."},{n:"SEO Robot",p:150,c:"PRO",d:"Algorithmic indexing automation."},{n:"Auth Shield",p:200,c:"PRO",d:"JWT identity verification layer."},{n:"Ghost API",p:1200,c:"GHOST",d:"Decentralized endpoint obfuscation."},{n:"Void Scraper",p:2500,c:"GHOST",d:"Dark-pool metadata extraction."},{n:"Zero Day",p:5000,c:"GHOST",d:"Penetration testing payload simulation."},{n:"Phantom Node",p:3500,c:"GHOST",d:"Encrypted offshore relay instance."}];
+let dragObj=null,oX=0,oY=0;
+document.onmousemove=e=>{document.getElementById('dot').style.left=e.clientX+'px';document.getElementById('dot').style.top=e.clientY+'px';document.getElementById('ring').style.transform=`translate(${e.clientX-18}px, ${e.clientY-18}px)`;if(dragObj){dragObj.style.left=(e.clientX-oX)+'px';dragObj.style.top=(e.clientY-oY)+'px';}};
+document.onmouseup=()=>dragObj=null;
+return{
+auth(){auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(r=>{document.getElementById('gate-keeper').style.display='none';document.getElementById('main-os').style.display='block';document.getElementById('user-display').innerText=`NODE_${r.user.displayName.toUpperCase()}`;this.boot();});},
+toggleTerm(){document.getElementById('term-os').classList.toggle('visible');},
+drag(e){dragObj=document.getElementById('term-os');oX=e.clientX-dragObj.getBoundingClientRect().left;oY=e.clientY-dragObj.getBoundingClientRect().top;},
+boot(){
+db.collection("global_chat").orderBy("ts","desc").limit(20).onSnapshot(s=>{document.getElementById('term-content').innerHTML=s.docs.reverse().map(d=>`<div><b style="color:var(--accent)">[${d.data().user}]</b>: ${d.data().text}</div>`).join('');document.getElementById('term-content').scrollTop=9999;});
+document.getElementById('term-input-field').onkeydown=e=>{if(e.key==='Enter'&&e.target.value){db.collection("global_chat").add({user:auth.currentUser.displayName.split(' ')[0],text:e.target.value,ts:firebase.firestore.FieldValue.serverTimestamp()});e.target.value='';}};
+db.collection("reviews").orderBy("ts","desc").onSnapshot(s=>{let r=752*4.3,v=752+s.size;document.getElementById('rev-stream').innerHTML=s.docs.map(d=>{r+=5;return `<div class="node" style="min-height:160px;padding:30px;"><b style="color:var(--accent)">NODE_${d.id.substring(0,6)}</b><p style="margin-top:10px;">"${d.data().text}"</p></div>`;}).join('');document.getElementById('rating').innerText=(r/v).toFixed(1);document.getElementById('votes').innerText=`${v}_NODES`;});
+this.filter('ALL');this.sysLog();
+},
+filter(c){document.getElementById('grid').innerHTML=(c==='ALL'?assets:assets.filter(a=>a.c===c)).map(a=>`<div class="node ${a.c.toLowerCase()} reveal active"><div><span class="mono" style="font-size:0.6rem;color:var(--text-dim);">T_${a.c}</span><h3>${a.n}</h3><p>${a.d}</p></div><div style="margin-top:40px;"><div class="mono" style="font-size:2.2rem;margin-bottom:20px;">${a.p===0?'FREE':'$'+a.p}</div><button class="btn ${a.c==='LAZY'?'btn-lazy':(a.c==='GHOST'?'btn-ghost':'')}">DEPLOY_NODE</button></div></div>`).join('');},
+submitRev(){const t=document.getElementById('rev-text').value;if(t){db.collection("reviews").add({user:auth.currentUser.displayName,text:t,ts:firebase.firestore.FieldValue.serverTimestamp()});document.getElementById('rev-text').value='';}},
+sysLog(){const L=["HANDSHAKE_VERIFIED","PACKET_RECEIVED","ENCRYPTION_LAYER_ACTIVE","OMNI_CORE_STABLE","GHOST_ROUTING_SUCCESS"];setInterval(()=>{const g=document.getElementById('sys-log'),d=document.createElement('div');d.innerText=`> ${L[Math.floor(Math.random()*L.length)]} [${new Date().toISOString().split('T')[1].slice(0,-1)}]`;g.prepend(d);if(g.children.length>6)g.lastChild.remove();},2500);}
+};})();
+window.onload=()=>{
+const c=document.getElementById('render-canvas'),x=c.getContext('2d');c.width=window.innerWidth;c.height=window.innerHeight;
+let p=Array.from({length:60},()=>({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-0.5)*1.5,vy:(Math.random()-0.5)*1.5}));
+function draw(){x.fillStyle='rgba(0,0,0,0.15)';x.fillRect(0,0,c.width,c.height);x.strokeStyle='rgba(255,85,0,0.2)';x.lineWidth=0.8;p.forEach((i,idx)=>{i.x+=i.vx;i.y+=i.vy;if(i.x<0||i.x>c.width)i.vx*=-1;if(i.y<0||i.y>c.height)i.vy*=-1;p.slice(idx+1).forEach(j=>{if(Math.hypot(i.x-j.x,i.y-j.y)<180){x.beginPath();x.moveTo(i.x,i.y);x.lineTo(j.x,j.y);x.stroke();}})});requestAnimationFrame(draw);}
+draw();const o=new IntersectionObserver(e=>e.forEach(i=>{if(i.isIntersecting)i.target.classList.add('active');}));document.querySelectorAll('.reveal').forEach(e=>o.observe(e));
+};
+</script>
 </body>
 </html>
