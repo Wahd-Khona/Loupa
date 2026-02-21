@@ -1,334 +1,251 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LOUPA // Digital Architects</title>
-  
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
-
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
-  
-  <style>
-    :root {
-      --bg: #030303;
-      --glass: rgba(255, 255, 255, 0.02);
-      --glass-border: rgba(255, 255, 255, 0.08);
-      --accent: #ff5500; 
-      --accent-muted: #802b00;
-      --accent-glow: rgba(255, 85, 0, 0.2);
-      --text-main: #f0f0f0;
-      --text-muted: #666666;
-      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+<style>
+    /* New Service Specific Styles */
+    .matrix-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-top: 3rem;
     }
 
-    * { box-sizing: border-box; cursor: none; }
-    body { 
-        margin: 0; background-color: var(--bg); color: var(--text-main); 
-        font-family: 'Inter', sans-serif; overflow-x: hidden; line-height: 1.5;
+    .matrix-item {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        padding: 2rem;
+        border-radius: 8px;
+        transition: all 0.4s var(--ease);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
-    /* --- Custom Scrollbar --- */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--accent); }
-
-    /* --- Background Systems --- */
-    #canvas-bg { position: fixed; inset: 0; z-index: -1; opacity: 0.4; }
-    #cursor { 
-        position: fixed; width: 10px; height: 10px; background: #fff; 
-        border-radius: 50%; pointer-events: none; z-index: 10002; 
-        transition: transform 0.1s var(--ease), width 0.3s, height 0.3s;
-    }
-    #cursor-follower {
-        position: fixed; width: 40px; height: 40px; border: 1px solid var(--accent);
-        border-radius: 50%; pointer-events: none; z-index: 10001;
-        transition: transform 0.15s var(--ease);
+    .matrix-item:hover {
+        border-color: var(--accent);
+        background: rgba(255, 85, 0, 0.05);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
-    /* --- Layout & Typography --- */
-    section { padding: 10rem 10% 5rem; max-width: 1600px; margin: 0 auto; }
-    .brand { font-family: 'Space Grotesk'; font-weight: 700; font-size: 1.8rem; letter-spacing: -2px; color: #fff; text-decoration: none; }
-    .brand span { color: var(--accent); }
+    .matrix-item h3 { margin: 0; font-family: 'Space Grotesk'; font-size: 1.2rem; }
+    .matrix-item .price { 
+        color: var(--accent); 
+        font-family: 'JetBrains Mono'; 
+        font-weight: 700; 
+        font-size: 1.4rem; 
+        margin: 1rem 0;
+    }
+    .matrix-item p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; flex-grow: 1; }
 
-    /* --- Navigation --- */
-    nav { 
-        position: fixed; top: 0; width: 100%; padding: 1.5rem 5%; 
-        display: flex; justify-content: space-between; align-items: center; 
-        z-index: 100; backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border);
+    .tag {
+        font-size: 0.6rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        background: var(--accent-muted);
+        padding: 2px 8px;
+        border-radius: 4px;
+        width: fit-content;
+        margin-bottom: 10px;
     }
 
-    /* --- Hero Section --- */
-    .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
-    .hero h1 { font-family: 'Space Grotesk'; font-size: clamp(3.5rem, 10vw, 8rem); line-height: 0.9; margin: 0; font-weight: 700; }
-    .hero-meta { font-family: 'JetBrains Mono'; color: var(--accent); font-size: 0.8rem; letter-spacing: 4px; margin-bottom: 1.5rem; }
-
-    /* --- Grid Services --- */
-    .services-grid { 
-        display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-        gap: 1.5rem; margin-top: 4rem; 
-    }
-    .service-card {
-        background: var(--glass); border: 1px solid var(--glass-border);
-        padding: 3rem 2rem; border-radius: 4px; transition: 0.4s var(--ease);
-        position: relative; overflow: hidden;
-    }
-    .service-card:hover { 
-        background: rgba(255,255,255,0.05); border-color: var(--accent);
-        transform: translateY(-10px);
-    }
-    .service-card h3 { font-family: 'Space Grotesk'; font-size: 1.5rem; margin-bottom: 1rem; }
-    .service-card p { color: var(--text-muted); font-size: 0.95rem; }
-    .service-card .icon { color: var(--accent); font-family: 'JetBrains Mono'; font-size: 0.8rem; margin-bottom: 2rem; display: block; }
-
-    /* --- Buttons --- */
-    .btn {
-        padding: 1.2rem 2.5rem; border-radius: 2px; font-family: 'Space Grotesk';
-        font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
-        transition: 0.3s; display: inline-block; text-decoration: none;
-    }
-    .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 10px 30px var(--accent-glow); }
-    .btn-primary:hover { transform: scale(1.05); background: #ff6622; }
-    .btn-secondary { border: 1px solid var(--glass-border); color: #fff; }
-    .btn-secondary:hover { background: #fff; color: #000; }
-
-    /* --- Reveal Animation --- */
-    .reveal { opacity: 0; transform: translateY(40px); transition: 1s var(--ease); }
-    .reveal.active { opacity: 1; transform: translateY(0); }
-
-    /* --- Pricing/Vault --- */
-    .vault-box {
-        max-width: 600px; margin: 0 auto; text-align: center;
-        background: linear-gradient(145deg, rgba(15,15,15,1) 0%, rgba(5,5,5,1) 100%);
-        padding: 4rem; border: 1px solid var(--accent-muted); border-radius: 8px;
+    /* Selection Overlay */
+    #checkout-overlay {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 350px;
+        background: #0a0a0a;
+        border: 1px solid var(--accent);
+        padding: 2rem;
+        z-index: 1000;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        display: none;
+        animation: slideIn 0.5s var(--ease);
     }
 
-    #auth-overlay {
-        position: fixed; inset: 0; background: var(--bg); z-index: 10000;
-        display: flex; justify-content: center; align-items: center; text-align: center;
+    @keyframes slideIn {
+        from { transform: translateX(110%); }
+        to { transform: translateX(0); }
     }
-
-    /* Admin Panel Upgrade */
-    #admin-panel {
-        position: fixed; inset: 0; background: #000; z-index: 10001; padding: 5%;
-        font-family: 'JetBrains Mono'; display: none;
-    }
-  </style>
-</head>
-<body>
-
-<div id="cursor"></div>
-<div id="cursor-follower"></div>
-<canvas id="canvas-bg"></canvas>
-
-<div id="auth-overlay">
-    <div class="reveal active">
-        <h1 class="brand" style="font-size: 4rem;">LOUPA<span>.</span></h1>
-        <p style="color: var(--text-muted); font-family: 'JetBrains Mono'; margin-bottom: 3rem;">CORE_SYSTEM_ACCESS_REQUIRED</p>
-        <button onclick="handleLogin()" class="btn btn-primary">Establish Connection</button>
-    </div>
-</div>
-
-<nav>
-    <a href="#" class="brand">LOUPA<span>.</span></a>
-    <div style="display: flex; gap: 30px; align-items: center;">
-        <span id="sys-uptime" style="font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--text-muted);">UPTIME: 99.9%</span>
-        <div class="user-pill" id="u-pill" style="display:none; font-family: 'JetBrains Mono'; font-size: 0.8rem; border: 1px solid var(--accent); padding: 5px 15px;">
-            <span id="u-name">...</span>
-            <span onclick="auth.signOut()" style="margin-left: 15px; color: var(--accent); cursor: pointer;">[DISCONNECT]</span>
-        </div>
-    </div>
-</nav>
+</style>
 
 <div id="main-content" style="display:none">
-    <section class="hero">
-        <div class="reveal">
-            <div class="hero-meta">// DIGITAL ARCHITECTS</div>
-            <h1>SYSTEMS<br><span id="typewriter" style="color: var(--accent);"></span></h1>
-            <p style="max-width: 600px; color: var(--text-muted); margin: 2rem 0; font-size: 1.1rem;">
-                Loupa is a high-performance digital foundry. We specialize in building autonomous infrastructure, scalable codebases, and intelligent automation.
-            </p>
-            <div style="display: flex; gap: 20px;">
-                <a href="#services" class="btn btn-primary">Capabilities</a>
-                <a href="#vault" class="btn btn-secondary">The Vault</a>
-            </div>
-        </div>
-    </section>
-
     <section id="services">
         <div class="reveal">
-            <h2 style="font-family: 'Space Grotesk'; font-size: 3rem;">Capabilities</h2>
-            <div class="services-grid">
-                <div class="service-card">
-                    <span class="icon">01 // ARCHITECTURE</span>
-                    <h3>Cloud Systems</h3>
-                    <p>Scalable backend infrastructure designed for 99.99% uptime and global low-latency response.</p>
+            <div class="hero-meta">// SOLUTIONS_ARCHIVE</div>
+            <h2 style="font-size: 3rem; font-family: 'Space Grotesk';">Agency Services</h2>
+            
+            <div class="matrix-grid">
+                <div class="matrix-item">
+                    <div>
+                        <div class="tag">Development</div>
+                        <h3>Custom SaaS MVP</h3>
+                        <p>Full-stack web application built with React/Firebase. Ready for users.</p>
+                    </div>
+                    <div class="price">$1,499</div>
+                    <button onclick="selectService('SaaS MVP', 1499)" class="btn btn-secondary" style="font-size: 0.7rem;">Select Service</button>
                 </div>
-                <div class="service-card">
-                    <span class="icon">02 // AUTOMATION</span>
-                    <h3>Python Flux</h3>
-                    <p>Custom workflow automation that eliminates repetitive tasks and optimizes business logic.</p>
+
+                <div class="matrix-item">
+                    <div>
+                        <div class="tag">Design</div>
+                        <h3>Brand Identity</h3>
+                        <p>Logo, typography, and visual language for your digital presence.</p>
+                    </div>
+                    <div class="price">$450</div>
+                    <button onclick="selectService('Brand Identity', 450)" class="btn btn-secondary" style="font-size: 0.7rem;">Select Service</button>
                 </div>
-                <div class="service-card">
-                    <span class="icon">03 // INTELLIGENCE</span>
-                    <h3>Neural Nodes</h3>
-                    <p>Integrating Large Language Models and custom AI agents into your existing ecosystem.</p>
+
+                <div class="matrix-item">
+                    <div>
+                        <div class="tag">Edit</div>
+                        <h3>Web Maintenance</h3>
+                        <p>24/7 bug fixes, CSS tweaks, and content updates for existing sites.</p>
+                    </div>
+                    <div class="price">$150/mo</div>
+                    <button onclick="selectService('Maintenance', 150)" class="btn btn-secondary" style="font-size: 0.7rem;">Select Service</button>
+                </div>
+
+                <div class="matrix-item">
+                    <div>
+                        <div class="tag">Intelligence</div>
+                        <h3>Custom AI Agent</h3>
+                        <p>Personalized GPT/LLM agent trained on your specific business data.</p>
+                    </div>
+                    <div class="price">$899</div>
+                    <button onclick="selectService('AI Agent', 899)" class="btn btn-secondary" style="font-size: 0.7rem;">Select Service</button>
+                </div>
+
+                <div class="matrix-item">
+                    <div>
+                        <div class="tag">Automation</div>
+                        <h3>Social Auto-Bot</h3>
+                        <p>Automated content posting and engagement for X, IG, and LinkedIn.</p>
+                    </div>
+                    <div class="price">$299</div>
+                    <button onclick="selectService('Social Bot', 299)" class="btn btn-secondary" style="font-size: 0.7rem;">Select Service</button>
+                </div>
+
+                <div class="matrix-item">
+                    <div>
+                        <div class="tag">Data</div>
+                        <h3>Scraping Engine</h3>
+                        <p>High-speed data extraction tool for lead generation or research.</p>
+                    </div>
+                    <div class="price">$350</div>
+                    <button onclick="selectService('Scraper', 350)" class="btn btn-secondary" style="font-size: 0.7rem;">Select Service</button>
+                </div>
+
+                <div class="matrix-item">
+                    <div>
+                        <div class="tag">Cloud</div>
+                        <h3>AWS Migration</h3>
+                        <p>Move your legacy system to the cloud with zero downtime.</p>
+                    </div>
+                    <div class="price">$1,200</div>
+                    <button onclick="selectService('AWS Migration', 1200)" class="btn btn-secondary" style="font-size: 0.7rem;">Select Service</button>
+                </div>
+
+                <div class="matrix-item">
+                    <div>
+                        <div class="tag">Security</div>
+                        <h3>Pentest Audit</h3>
+                        <p>Comprehensive vulnerability scan and security patch report.</p>
+                    </div>
+                    <div class="price">$600</div>
+                    <button onclick="selectService('Security Audit', 600)" class="btn btn-secondary" style="font-size: 0.7rem;">Select Service</button>
+                </div>
+
+                <div class="matrix-item">
+                    <div>
+                        <div class="tag">Web3</div>
+                        <h3>DApp Interface</h3>
+                        <p>Integration with MetaMask and smart contracts for Web3 apps.</p>
+                    </div>
+                    <div class="price">$950</div>
+                    <button onclick="selectService('DApp Interface', 950)" class="btn btn-secondary" style="font-size: 0.7rem;">Select Service</button>
+                </div>
+
+                <div class="matrix-item">
+                    <div><div class="tag">SEO</div><h3>Organic Growth Pack</h3><p>Full SEO audit and keyword strategy implementation.</p></div>
+                    <div class="price">$400</div>
+                    <button onclick="selectService('SEO Pack', 400)" class="btn btn-secondary" style="font-size:0.7rem;">Select</button>
+                </div>
+                <div class="matrix-item">
+                    <div><div class="tag">API</div><h3>Custom API Design</h3><p>Fast, RESTful APIs for your mobile or web apps.</p></div>
+                    <div class="price">$550</div>
+                    <button onclick="selectService('API Design', 550)" class="btn btn-secondary" style="font-size:0.7rem;">Select</button>
+                </div>
+                <div class="matrix-item">
+                    <div><div class="tag">Bot</div><h3>Discord Economy</h3><p>Custom economy and leveling bots for your community.</p></div>
+                    <div class="price">$200</div>
+                    <button onclick="selectService('Discord Bot', 200)" class="btn btn-secondary" style="font-size:0.7rem;">Select</button>
+                </div>
+                <div class="matrix-item">
+                    <div><div class="tag">Optimization</div><h3>Core Web Vitals</h3><p>Extreme speed optimization for slow WordPress sites.</p></div>
+                    <div class="price">$300</div>
+                    <button onclick="selectService('Page Speed', 300)" class="btn btn-secondary" style="font-size:0.7rem;">Select</button>
+                </div>
+                <div class="matrix-item">
+                    <div><div class="tag">Consult</div><h3>System Architecting</h3><p>1-on-1 strategy call for large scale technical planning.</p></div>
+                    <div class="price">$250/hr</div>
+                    <button onclick="selectService('Consulting', 250)" class="btn btn-secondary" style="font-size:0.7rem;">Select</button>
+                </div>
+                <div class="matrix-item">
+                    <div><div class="tag">App</div><h3>PWA Development</h3><p>Turn your website into an installable mobile app.</p></div>
+                    <div class="price">$700</div>
+                    <button onclick="selectService('PWA', 700)" class="btn btn-secondary" style="font-size:0.7rem;">Select</button>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="vault">
-        <div class="vault-box reveal">
-            <div id="pay-status" style="font-family:'JetBrains Mono'; font-size:0.7rem; color: var(--accent); margin-bottom: 2rem;">[SYSTEM_LOCKED]</div>
-            <h2 style="font-family: 'Space Grotesk'; font-size: 2.5rem; margin: 0;">The Python Vault</h2>
-            <p style="color: var(--text-muted); margin: 1rem 0 3rem;">Unlock our proprietary automation library. 50+ scripts for data mining, auto-deployment, and system monitoring.</p>
-            
-            <div id="product-price" style="font-size: 3rem; font-family: 'Space Grotesk'; margin-bottom: 2rem;">$49.00</div>
-            <div id="paypal-container"></div>
-            
-            <div id="unlocked-content" style="display:none;">
-                <div style="padding: 2rem; border: 1px solid var(--accent); background: rgba(255, 85, 0, 0.05);">
-                    <p>ACCESS GRANTED. ENCRYPTED LINK GENERATED.</p>
-                    <a href="#" class="btn btn-primary" style="width: 100%;">Initialize Download</a>
-                </div>
-            </div>
-        </div>
-    </section>
+    <div id="checkout-overlay">
+        <h4 id="check-name" style="margin-top:0; color:var(--accent);">Service Selected</h4>
+        <p id="check-price" style="font-family:'JetBrains Mono'; font-size:1.5rem; margin:10px 0;">$0.00</p>
+        <div id="paypal-matrix-container"></div>
+        <button onclick="this.parentElement.style.display='none'" class="btn" style="width:100%; font-size:0.6rem; color:var(--text-muted);">CANCEL_TRANSACTION</button>
+    </div>
 </div>
 
 <script>
-    // --- FIREBASE CONFIG (SAME AS YOURS) ---
-    const ADMIN_EMAIL = "wahdkhonafdar@gmail.com"; 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDwkqu_JpelnceEjwbdP76hzwQ1JMFI2D0",
-      authDomain: "loupa-d2ca2.firebaseapp.com",
-      projectId: "loupa-d2ca2",
-      storageBucket: "loupa-d2ca2.firebasestorage.app",
-      messagingSenderId: "1062889452519",
-      appId: "1:1062889452519:web:a412e262ba0981d3c3c342"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    // --- SERVICE PROCUREMENT LOGIC ---
 
-    // --- AUTH LOGIC ---
-    async function handleLogin() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      try {
-          const res = await auth.signInWithPopup(provider);
-          document.getElementById('auth-overlay').style.opacity = '0';
-          setTimeout(() => document.getElementById('auth-overlay').style.display = 'none', 500);
-      } catch(e) { console.error(e); }
-    }
+    function selectService(name, price) {
+        const overlay = document.getElementById('checkout-overlay');
+        overlay.style.display = 'block';
+        
+        document.getElementById('check-name').innerText = name.toUpperCase();
+        document.getElementById('check-price').innerText = `$${price}.00`;
 
-    auth.onAuthStateChanged(user => {
-      if(user) {
-        document.getElementById('auth-overlay').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-        document.getElementById('u-pill').style.display = 'flex';
-        document.getElementById('u-name').innerText = user.displayName.toUpperCase();
-        checkPayment(user.uid);
-      } else {
-        document.getElementById('auth-overlay').style.display = 'flex';
-        document.getElementById('main-content').style.display = 'none';
-      }
-    });
+        // Clear previous button
+        document.getElementById('paypal-matrix-container').innerHTML = '';
 
-    async function checkPayment(uid) {
-        const doc = await db.collection("users").doc(uid).get();
-        if(doc.exists && doc.data().hasPaid) {
-            unlockVault();
-        } else {
-            initPaypal();
-        }
-    }
-
-    function unlockVault() {
-        document.getElementById('paypal-container').style.display = 'none';
-        document.getElementById('product-price').style.display = 'none';
-        document.getElementById('unlocked-content').style.display = 'block';
-        document.getElementById('pay-status').innerText = "[ACCESS_GRANTED]";
-    }
-
-    function initPaypal() {
-        if (document.getElementById('paypal-container').children.length > 0) return;
+        // Generate dynamic PayPal button
         paypal.Buttons({
-            createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '49.00' } }] }),
-            onApprove: (d, a) => a.order.capture().then(async () => {
-                await db.collection("users").doc(auth.currentUser.uid).set({hasPaid: true}, {merge: true});
-                unlockVault();
-            })
-        }).render('#paypal-container');
+            createOrder: (data, actions) => {
+                return actions.order.create({
+                    purchase_units: [{
+                        description: `LOUPA_SERVICE: ${name}`,
+                        amount: { value: price.toString() }
+                    }]
+                });
+            },
+            onApprove: (data, actions) => {
+                return actions.order.capture().then(async (details) => {
+                    // Log transaction to Firestore
+                    await db.collection("orders").add({
+                        userId: auth.currentUser.uid,
+                        userEmail: auth.currentUser.email,
+                        service: name,
+                        amount: price,
+                        status: 'PAID',
+                        timestamp: new Date()
+                    });
+                    
+                    alert("TRANSACTION_COMPLETE: Our team will contact you within 6 hours.");
+                    overlay.style.display = 'none';
+                });
+            }
+        }).render('#paypal-matrix-container');
     }
-
-    // --- VISUAL ENGINE ---
-    const cursor = document.getElementById('cursor');
-    const follower = document.getElementById('cursor-follower');
-    
-    document.addEventListener('mousemove', e => {
-        cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-        follower.style.transform = `translate3d(${e.clientX - 15}px, ${e.clientY - 15}px, 0)`;
-    });
-
-    // Background Particles
-    const canvas = document.getElementById('canvas-bg');
-    const ctx = canvas.getContext('2d');
-    let width, height, particles = [];
-
-    function resize() {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resize);
-    resize();
-
-    class P {
-        constructor() { this.reset(); }
-        reset() {
-            this.x = Math.random() * width;
-            this.y = Math.random() * height;
-            this.v = Math.random() * 0.5 + 0.2;
-        }
-        update() {
-            this.y -= this.v;
-            if (this.y < 0) this.reset();
-        }
-        draw() {
-            ctx.fillStyle = 'rgba(255, 85, 0, 0.3)';
-            ctx.fillRect(this.x, this.y, 1, 1);
-        }
-    }
-    for(let i=0; i<100; i++) particles.push(new P());
-
-    function animate() {
-        ctx.clearRect(0,0,width,height);
-        particles.forEach(p => { p.update(); p.draw(); });
-        requestAnimationFrame(animate);
-    }
-    animate();
-
-    // Typewriter
-    const words = ["THAT SCALE.", "THAT THINK.", "THAT LAST."];
-    let wI = 0, cI = 0, del = false;
-    function type() {
-        const cur = words[wI];
-        document.getElementById('typewriter').innerText = del ? cur.substring(0, cI--) : cur.substring(0, cI++);
-        if(!del && cI > cur.length) { del = true; setTimeout(type, 2000); }
-        else if(del && cI === 0) { del = false; wI = (wI+1)%words.length; setTimeout(type, 500); }
-        else setTimeout(type, del ? 40 : 80);
-    }
-    type();
-
-    // Intersection Observer
-    const obs = new IntersectionObserver(entries => {
-        entries.forEach(en => { if(en.isIntersecting) en.target.classList.add('active'); });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-
 </script>
-</body>
-</html>
