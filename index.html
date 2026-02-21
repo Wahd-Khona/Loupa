@@ -3,35 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LOUPA // SECURE_TITAN_v12.5</title>
+    <title>LOUPA // ULTIMATE_ULTRA_PRO_MAX_v13</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700;900&family=JetBrains+Mono:wght@100;400;700&family=Inter:wght@200;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700;900&family=JetBrains+Mono:wght@100;400;700&family=Inter:wght@200;400;900&display=swap" rel="stylesheet">
 
     <style>
+        /* LOUPA DIGITAL ARCHITECTURE - THE ULTIMATE BUILD
+           ENGINEERED BY GEMINI 3 FLASH | 2026
+        */
         :root {
-            --bg: #010101;
+            --bg: #020202;
             --surface: #080808;
             --elevated: #111;
             --accent: #ff5500;
-            --accent-soft: rgba(255, 85, 0, 0.15);
+            --lazy-blue: #0088ff;
             --text-main: #ffffff;
-            --text-dim: #555555;
+            --text-dim: #666;
             --success: #00ffaa;
             --border: rgba(255, 255, 255, 0.05);
             --font-mono: 'JetBrains Mono', monospace;
             --ease: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
-        body { background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; -webkit-font-smoothing: antialiased; }
+        body { background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; overflow-x: hidden; width: 100%; }
 
-        /* --- VISUAL ENGINE --- */
-        #bg-canvas { position: fixed; inset: 0; z-index: -1; }
-        .vignette { position: fixed; inset: 0; pointer-events: none; z-index: 50; background: radial-gradient(circle, transparent 40%, #000 130%); }
+        /* --- VISUAL ENGINE & OVERLAYS --- */
+        #titan-canvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+        .cr-overlay { position: fixed; inset: 0; z-index: 9999; pointer-events: none; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.08) 50%); background-size: 100% 3px; opacity: 0.15; }
+        .vignette { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.8) 100%); }
 
         /* --- COOKIE SHIELD --- */
         #cookie-shield {
@@ -40,111 +45,148 @@
             padding: 30px; z-index: 10000; display: none;
             box-shadow: 0 30px 60px rgba(0,0,0,0.8);
         }
-        #cookie-shield h4 { font-family: var(--font-mono); color: var(--accent); margin-bottom: 15px; font-size: 0.8rem; }
+        #cookie-shield h4 { font-family: var(--font-mono); color: var(--accent); margin-bottom: 10px; font-size: 0.8rem; }
         #cookie-shield p { font-size: 0.75rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 20px; }
 
-        /* --- GLOBAL CHAT --- */
-        #chat-sys {
-            position: fixed; bottom: 30px; left: 30px; width: 320px; height: 400px;
-            background: rgba(5,5,5,0.9); border: 1px solid var(--border);
-            z-index: 2000; display: flex; flex-direction: column; backdrop-filter: blur(15px);
+        /* --- GLOBAL CHAT SYSTEM --- */
+        #chat-widget {
+            position: fixed; bottom: 30px; left: 30px; width: 340px; height: 420px;
+            background: rgba(5,5,5,0.95); border: 1px solid var(--border);
+            z-index: 2000; display: flex; flex-direction: column; backdrop-filter: blur(20px);
+            transition: transform 0.5s var(--ease);
         }
-        #chat-head { padding: 12px; border-bottom: 1px solid var(--border); font-family: var(--font-mono); font-size: 0.6rem; display: flex; justify-content: space-between; }
-        #chat-content { flex: 1; overflow-y: auto; padding: 15px; font-family: var(--font-mono); font-size: 0.65rem; }
-        .msg { margin-bottom: 8px; border-left: 1px solid var(--accent); padding-left: 10px; }
+        #chat-header { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; background: #000; }
+        #chat-msgs { flex: 1; overflow-y: auto; padding: 15px; font-family: var(--font-mono); font-size: 0.65rem; }
+        .msg { margin-bottom: 10px; line-height: 1.4; border-left: 2px solid var(--accent); padding-left: 8px; }
         .msg span { color: var(--accent); font-weight: 700; }
-        #chat-bar { border-top: 1px solid var(--border); display: flex; }
-        #chat-bar input { background: transparent; border: none; color: #fff; padding: 12px; flex: 1; outline: none; font-size: 0.7rem; font-family: var(--font-mono); }
+        #chat-input-row { display: flex; border-top: 1px solid var(--border); }
+        #chat-input { background: transparent; border: none; color: #fff; padding: 15px; flex: 1; font-family: var(--font-mono); font-size: 0.7rem; outline: none; }
 
-        /* --- UI COMPONENTS --- */
+        /* --- NAVIGATION --- */
         nav {
-            position: fixed; top: 0; width: 100%; height: 80px;
+            position: fixed; top: 0; width: 100%; height: 90px;
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 6%; z-index: 3000; border-bottom: 1px solid var(--border);
-            backdrop-filter: blur(25px);
+            backdrop-filter: blur(30px); transition: 0.4s var(--ease);
         }
+        nav.scrolled { height: 70px; background: rgba(0,0,0,0.95); }
         .brand { font-family: 'Space Grotesk'; font-size: 1.8rem; font-weight: 900; letter-spacing: -2px; }
         .brand span { color: var(--accent); }
 
+        .nav-items { display: flex; gap: 40px; }
+        .nav-link { font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-dim); text-decoration: none; letter-spacing: 2px; text-transform: uppercase; transition: 0.3s; }
+        .nav-link:hover { color: var(--accent); }
+
+        /* --- COMPONENTS --- */
         .container { width: 88%; max-width: 1400px; margin: 0 auto; }
         .btn {
             background: var(--accent); border: 1px solid var(--accent); color: #000;
-            padding: 15px 30px; font-family: var(--font-mono); font-size: 0.65rem;
-            font-weight: 700; text-transform: uppercase; transition: 0.4s;
+            padding: 16px 32px; font-family: var(--font-mono); font-size: 0.65rem;
+            font-weight: 700; text-transform: uppercase; transition: 0.4s; display: inline-flex; align-items: center; gap: 10px;
         }
         .btn:hover { background: #fff; border-color: #fff; transform: translateY(-3px); }
-        .btn-outline { background: transparent; color: #fff; border-color: var(--border); }
+        .btn-lazy { background: transparent; border-color: var(--lazy-blue); color: var(--lazy-blue); }
+        .btn-lazy:hover { background: var(--lazy-blue); color: #000; }
+
+        /* --- HERO --- */
+        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+        .hero-pre { font-family: var(--font-mono); color: var(--accent); font-size: 0.75rem; margin-bottom: 25px; display: block; }
+        .hero h1 { font-family: 'Space Grotesk'; font-size: clamp(3rem, 12vw, 9rem); line-height: 0.85; font-weight: 900; margin-bottom: 40px; }
+        .hero p { max-width: 600px; color: var(--text-dim); font-size: 1.1rem; line-height: 1.8; border-left: 2px solid var(--accent); padding-left: 30px; margin-bottom: 50px; }
+
+        /* --- ASSET MATRIX --- */
+        .matrix-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-top: 60px; }
+        .card { background: var(--surface); border: 1px solid var(--border); padding: 50px; transition: 0.6s var(--ease); display: flex; flex-direction: column; justify-content: space-between; min-height: 500px; }
+        .card:hover { border-color: var(--accent); background: var(--elevated); transform: scale(1.02); }
+        .card.lazy-card { border-color: rgba(0, 136, 255, 0.15); }
+        .card.lazy-card:hover { border-color: var(--lazy-blue); }
+        .card h3 { font-family: 'Space Grotesk'; font-size: 2.2rem; margin: 15px 0; font-weight: 700; }
+        .price { font-family: 'Space Grotesk'; font-size: 3rem; font-weight: 900; margin: 30px 0; }
+        .price.free { color: var(--success); }
 
         /* --- REVIEWS --- */
-        .rev-section { padding: 150px 0; background: #030303; }
-        .rev-header { display: flex; align-items: flex-end; gap: 50px; margin-bottom: 80px; }
+        .rev-section { padding: 150px 0; background: #030303; border-top: 1px solid var(--border); }
+        .rev-header { display: flex; align-items: flex-end; gap: 50px; margin-bottom: 80px; flex-wrap: wrap; }
         .rev-avg { font-size: 7rem; font-family: 'Space Grotesk'; font-weight: 900; line-height: 1; }
-        .rev-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-        .rev-card { background: var(--surface); padding: 40px; border: 1px solid var(--border); transition: 0.3s; }
-        .rev-card:hover { border-color: var(--accent); }
-        
-        /* --- PRIVACY MODULE --- */
-        .legal-footer { padding: 80px 0; border-top: 1px solid var(--border); }
-        .legal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; }
-        .legal-item h5 { font-family: var(--font-mono); color: var(--accent); margin-bottom: 20px; font-size: 0.7rem; }
-        .legal-item p { color: var(--text-dim); font-size: 0.85rem; line-height: 1.8; }
+        .stars { color: var(--accent); font-size: 1.5rem; letter-spacing: 5px; }
 
         /* --- CURSOR --- */
-        #c-dot { position: fixed; width: 6px; height: 6px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 20000; }
-        #c-ring { position: fixed; width: 40px; height: 40px; border: 1px solid var(--accent); border-radius: 50%; pointer-events: none; z-index: 19999; transition: 0.15s; }
+        #c-dot { position: fixed; width: 6px; height: 6px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 20000; mix-blend-mode: difference; }
+        #c-ring { position: fixed; width: 40px; height: 40px; border: 1px solid var(--accent); border-radius: 50%; pointer-events: none; z-index: 19999; transition: 0.1s; }
 
-        .reveal { opacity: 0; transform: translateY(40px); transition: 1.2s var(--ease); }
+        .reveal { opacity: 0; transform: translateY(40px); transition: 1s var(--ease); }
         .reveal.active { opacity: 1; transform: translateY(0); }
 
-        @media (max-width: 768px) { .legal-grid { grid-template-columns: 1fr; } #chat-sys { display: none; } }
+        @media (max-width: 768px) { #chat-widget { display: none; } .nav-items { display: none; } }
     </style>
 </head>
 <body>
 
-    <canvas id="bg-canvas"></canvas>
+    <canvas id="titan-canvas"></canvas>
+    <div class="cr-overlay"></div>
     <div class="vignette"></div>
     <div id="c-dot"></div>
     <div id="c-ring"></div>
 
     <div id="cookie-shield">
-        <h4>SECURE_COOKIE_HANDSHAKE</h4>
-        <p>This node uses encrypted cookies to optimize session stability and reinforce protocol security. By proceeding, you accept our data-handling logic.</p>
-        <div style="display:flex; gap:10px;">
-            <button class="btn" style="padding: 10px 20px;" onclick="Loupa.secure.acceptCookies()">ACCEPT_PROTOCOLS</button>
-            <button class="btn btn-outline" style="padding: 10px 20px;" onclick="Loupa.secure.acceptCookies()">DECLINE</button>
-        </div>
+        <h4>DATA_SECURITY_HANDSHAKE</h4>
+        <p>This node utilizes encrypted cookies and session persistence to ensure protocol stability. Access requires handshake confirmation.</p>
+        <button class="btn" style="width:100%" onclick="Loupa.secure.accept()">I_ACCEPT_PROTOCOLS</button>
     </div>
 
-    <div id="auth-gate" style="position:fixed; inset:0; background:#000; z-index:9000; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-        <h1 class="brand" style="font-size: 5rem; margin-bottom: 20px;">LOUPA<span>.</span></h1>
-        <p class="mono" style="color:var(--text-dim); margin-bottom:40px;">// ACCESS_LEVEL_REQUIRED</p>
+    <div id="gate" style="position:fixed; inset:0; background:#000; z-index:9000; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+        <h1 class="brand" style="font-size: 6rem; margin-bottom: 20px;">LOUPA<span>.</span></h1>
+        <p class="mono" style="color:var(--text-dim); margin-bottom:40px;">// SECURE_CONNECTION_v13_REQUIRED</p>
         <button onclick="Loupa.auth.init()" class="btn">INITIALIZE_LINK</button>
     </div>
 
-    <div id="chat-sys">
-        <div id="chat-head">
-            <span>[ SYSTEM_COMMS ]</span>
-            <span style="color:var(--success)">ONLINE</span>
+    <div id="chat-widget">
+        <div id="chat-header">
+            <span class="mono" style="font-size:0.6rem;">// NEURAL_COMMS</span>
+            <span style="color:var(--success); font-size:0.6rem;">● SECURE_LINK</span>
         </div>
-        <div id="chat-content"></div>
-        <div id="chat-bar">
+        <div id="chat-msgs"></div>
+        <div id="chat-input-row">
             <input type="text" id="chat-input" placeholder="Broadcast to peers..." maxlength="80">
         </div>
     </div>
 
-    <nav>
+    <nav id="navbar">
         <div class="brand">LOUPA<span>.</span></div>
-        <div class="mono" id="node-id" style="font-size:0.6rem; color:var(--text-dim);">AWAITING_IDENT_V12</div>
+        <div class="nav-items">
+            <a href="#services" class="nav-link">MATRIX</a>
+            <a href="#reviews" class="nav-link">REPUTATION</a>
+            <a href="#legal" class="nav-link">PRIVACY</a>
+        </div>
+        <div id="node-tag" class="mono" style="font-size:0.6rem; color:var(--text-dim);">AWAITING_IDENT</div>
     </nav>
 
-    <main id="app-root" style="display:none; margin-top:80px;">
-        <section class="container" style="min-height:80vh; display:flex; flex-direction:column; justify-content:center;">
+    <main id="app-root" style="display:none; margin-top:100px;">
+        <section class="container hero">
             <div class="reveal">
-                <h1 style="font-size: clamp(3rem, 12vw, 8rem); font-family:'Space Grotesk'; font-weight:900; line-height:0.85;">SECURED<br><span style="color:var(--accent);">ASSETS.</span></h1>
-                <p style="color:var(--text-dim); max-width:650px; margin-top:40px; line-height:1.8; font-size:1.1rem; border-left: 1px solid var(--accent); padding-left: 30px;">
-                    Loupa provides professional-grade digital assets backed by a secure peer-to-peer ecosystem. Your data is encrypted, your sessions are private, and our results are verified by 750+ global nodes.
-                </p>
+                <span class="hero-pre">// SYSTEM_STATUS: ULTRA_PRO_MAX</span>
+                <h1>ENGINEERING<br><span id="type-target" style="color:var(--accent);"></span></h1>
+                <p>Premium digital development for elite startups. We build high-velocity interfaces, autonomous data bots, and scalable brand ecosystems using the latest in neural architecture.</p>
+                <div style="display:flex; gap:20px;">
+                    <button onclick="window.scrollTo(0, 1000)" class="btn">Access Matrix</button>
+                    <button onclick="Loupa.logic.filter('LAZY')" class="btn btn-lazy">Lazy Protocol</button>
+                </div>
             </div>
+        </section>
+
+        <section class="container" id="services" style="padding: 150px 0;">
+            <div class="reveal" style="display:flex; justify-content:space-between; align-items:flex-end;">
+                <div>
+                    <span class="hero-pre">01 // ASSET_DEPLOYMENT</span>
+                    <h2 style="font-family:'Space Grotesk'; font-size:3.5rem; font-weight:900;">Service_Matrix</h2>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="Loupa.logic.filter('ALL')" class="btn btn-lazy" style="padding:10px 15px;">ALL</button>
+                    <button onclick="Loupa.logic.filter('LAZY')" class="btn btn-lazy" style="padding:10px 15px;">LAZY</button>
+                    <button onclick="Loupa.logic.filter('PRO')" class="btn" style="padding:10px 15px; color:#fff;">PRO</button>
+                </div>
+            </div>
+            <div class="matrix-grid" id="grid-target"></div>
         </section>
 
         <section class="rev-section" id="reviews">
@@ -152,7 +194,7 @@
                 <div class="rev-header reveal">
                     <div>
                         <div class="rev-avg" id="avg-val">4.3</div>
-                        <div style="color:var(--accent); letter-spacing:8px; margin-top:10px;">★★★★☆</div>
+                        <div class="stars">★★★★☆</div>
                     </div>
                     <div>
                         <h2 class="mono" style="color:var(--accent); font-size:1.5rem;">PEER_VERIFIED_DATA</h2>
@@ -163,29 +205,29 @@
                 <div class="rev-grid" id="rev-list"></div>
 
                 <div class="reveal" style="margin-top:80px; background:var(--surface); padding:60px; border:1px solid var(--border);">
-                    <h3 class="mono" style="margin-bottom:30px;">LOG_FEEDBACK</h3>
-                    <div style="display:flex; gap:10px; margin-bottom:20px;" id="star-rank">
+                    <h3 class="mono" style="margin-bottom:30px;">SUBMIT_FEEDBACK</h3>
+                    <div style="display:flex; gap:10px; margin-bottom:20px;" id="star-picker">
                         <span style="cursor:pointer; font-size:1.5rem; color:var(--accent);" data-v="1">★</span>
                         <span style="cursor:pointer; font-size:1.5rem; color:var(--accent);" data-v="2">★</span>
                         <span style="cursor:pointer; font-size:1.5rem; color:var(--accent);" data-v="3">★</span>
                         <span style="cursor:pointer; font-size:1.5rem; color:var(--accent);" data-v="4">★</span>
                         <span style="cursor:pointer; font-size:1.5rem; color:var(--text-dim);" data-v="5">★</span>
                     </div>
-                    <textarea id="rev-input" style="width:100%; height:120px; background:#000; border:1px solid var(--border); color:#fff; padding:20px; outline:none; font-family:inherit; margin-bottom:30px;" placeholder="Describe your deployment experience..."></textarea>
-                    <button class="btn" onclick="Loupa.reviews.post()">SUBMIT_PROTOCOL</button>
+                    <textarea id="rev-input" style="width:100%; height:120px; background:#000; border:1px solid var(--border); color:#fff; padding:20px; outline:none; font-family:inherit; margin-bottom:30px;" placeholder="Describe your deployment..."></textarea>
+                    <button class="btn" onclick="Loupa.reviews.post()">POST_REVIEW</button>
                 </div>
             </div>
         </section>
 
-        <section class="legal-footer">
-            <div class="container legal-grid reveal">
-                <div class="legal-item">
-                    <h5>01 // PRIVACY_SHIELD</h5>
-                    <p>Loupa Protocol prioritizes data sovereignty. All user interactions are processed through encrypted channels. We do not store plain-text passwords or identifiable metadata beyond session-essential cookies. Your digital footprint is purged upon node disconnection.</p>
+        <section class="container" id="legal" style="padding: 100px 0; border-top: 1px solid var(--border);">
+            <div class="reveal" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:60px;">
+                <div>
+                    <h5 class="mono" style="color:var(--accent); margin-bottom:20px;">01 // PRIVACY_SHIELD</h5>
+                    <p style="color:var(--text-dim); font-size:0.85rem; line-height:1.8;">All user data is processed through decentralized neural nodes. No cleartext storage. Your privacy is paramount.</p>
                 </div>
-                <div class="legal-item">
-                    <h5>02 // COOKIE_POLICY</h5>
-                    <p>We utilize local storage and session-based cookies to maintain your authentication state and preferences. These are strictly functional and do not track off-platform activity. Security headers are enforced at the server level to prevent XSS and data-leakage.</p>
+                <div>
+                    <h5 class="mono" style="color:var(--accent); margin-bottom:20px;">02 // COOKIE_LOGIC</h5>
+                    <p style="color:var(--text-dim); font-size:0.85rem; line-height:1.8;">Strictly functional session cookies used for maintaining secure handshakes and persistent UI states.</p>
                 </div>
             </div>
         </section>
@@ -205,110 +247,96 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        let baseCount = 752;
+        let baseVotes = 752;
         let baseSum = 752 * 4.3;
 
-        // --- BACKGROUND ENGINE ---
+        const assets = [
+            { id: "LZY-1", name: "Color Palette", price: 0, cat: "LAZY", desc: "5 elite hex codes. Copy-paste style instantly." },
+            { id: "LZY-2", name: "Pro Bio", price: 0, cat: "LAZY", desc: "High-ego social bios for X/Instagram." },
+            { id: "LZY-3", name: "Folder ZP", price: 0, cat: "LAZY", desc: "Ready-made directory structure for developers." },
+            { id: "PRO-1", name: "SaaS Launchpad", price: 499, cat: "PRO", desc: "Full React deployment for elite startups." },
+            { id: "PRO-2", name: "Data Scraper", price: 350, cat: "PRO", desc: "Autonomous Python mining bot." },
+            { id: "PRO-3", name: "Auth Security", price: 700, cat: "PRO", desc: "Complete Firebase/Auth encryption layer." }
+        ];
+
+        // --- TITAN VISUAL ENGINE ---
         const Engine = {
             init() {
-                this.c = document.getElementById('bg-canvas');
+                this.c = document.getElementById('titan-canvas');
                 this.ctx = this.c.getContext('2d');
                 window.onresize = () => { this.c.width = window.innerWidth; this.c.height = window.innerHeight; };
                 window.onresize();
-                this.pts = Array.from({length:60}, () => ({x:Math.random()*this.c.width, y:Math.random()*this.c.height, s:Math.random()*2}));
+                this.pts = Array.from({length:80}, () => ({x:Math.random()*this.c.width, y:Math.random()*this.c.height, vx:(Math.random()-0.5)*0.5, vy:(Math.random()-0.5)*0.5}));
                 this.loop();
             },
             loop() {
-                this.ctx.fillStyle = 'rgba(1,1,1,0.2)';
+                this.ctx.fillStyle = 'rgba(2,2,2,0.2)';
                 this.ctx.fillRect(0,0,this.c.width,this.c.height);
-                this.pts.forEach(p => {
-                    p.y += p.s; if(p.y > this.c.height) p.y = -10;
+                this.pts.forEach((p, i) => {
+                    p.x += p.vx; p.y += p.vy;
+                    if(p.x<0 || p.x>this.c.width) p.vx*=-1;
+                    if(p.y<0 || p.y>this.c.height) p.vy*=-1;
                     this.ctx.fillStyle = 'rgba(255,85,0,0.3)';
-                    this.ctx.fillRect(p.x, p.y, 1, 10);
+                    this.ctx.beginPath(); this.ctx.arc(p.x, p.y, 1, 0, Math.PI*2); this.ctx.fill();
+                    for(let j=i+1; j<this.pts.length; j++){
+                        const p2 = this.pts[j];
+                        const d = Math.hypot(p.x-p2.x, p.y-p2.y);
+                        if(d < 150) {
+                            this.ctx.strokeStyle = `rgba(255,85,0,${0.1 * (1-d/150)})`;
+                            this.ctx.beginPath(); this.ctx.moveTo(p.x, p.y); this.ctx.lineTo(p2.x, p2.y); this.ctx.stroke();
+                        }
+                    }
                 });
                 requestAnimationFrame(() => this.loop());
             }
         };
 
-        // --- SECURITY & COOKIES ---
-        const Secure = {
-            check() {
-                if(!localStorage.getItem('loupa_consent')) {
-                    setTimeout(() => { document.getElementById('cookie-shield').style.display = 'block'; }, 2000);
-                }
-            },
-            acceptCookies() {
-                localStorage.setItem('loupa_consent', 'true');
-                document.getElementById('cookie-shield').style.display = 'none';
-            }
-        };
-
-        // --- CHAT ---
+        // --- CORE MODULES ---
         const Chat = {
             init() {
                 db.collection("global_chat").orderBy("ts", "desc").limit(15).onSnapshot(snap => {
-                    const cont = document.getElementById('chat-content');
-                    cont.innerHTML = snap.docs.reverse().map(doc => {
+                    const box = document.getElementById('chat-msgs');
+                    box.innerHTML = snap.docs.reverse().map(doc => {
                         const d = doc.data();
                         return `<div class="msg"><span>${d.user}:</span> ${d.text}</div>`;
                     }).join('');
-                    cont.scrollTop = cont.scrollHeight;
+                    box.scrollTop = box.scrollHeight;
                 });
-
                 document.getElementById('chat-input').onkeydown = e => {
                     if(e.key === 'Enter' && e.target.value.trim()) {
-                        db.collection("global_chat").add({
-                            user: auth.currentUser.displayName.split(' ')[0],
-                            text: e.target.value,
-                            ts: firebase.firestore.FieldValue.serverTimestamp()
-                        });
+                        db.collection("global_chat").add({ user: auth.currentUser.displayName.split(' ')[0], text: e.target.value, ts: firebase.firestore.FieldValue.serverTimestamp() });
                         e.target.value = '';
                     }
                 };
             }
         };
 
-        // --- REVIEWS ---
         const Reviews = {
             stars: 4,
             init() {
-                document.querySelectorAll('#star-rank span').forEach(s => {
+                document.querySelectorAll('#star-picker span').forEach(s => {
                     s.onclick = () => {
                         this.stars = s.dataset.v;
-                        document.querySelectorAll('#star-rank span').forEach(x => x.style.color = x.dataset.v <= this.stars ? 'var(--accent)' : 'var(--text-dim)');
+                        document.querySelectorAll('#star-picker span').forEach(x => x.style.color = x.dataset.v <= this.stars ? 'var(--accent)' : 'var(--text-dim)');
                     };
                 });
-
                 db.collection("reviews").orderBy("ts", "desc").onSnapshot(snap => {
-                    const list = document.getElementById('rev-list');
-                    let currentSum = baseSum;
-                    let currentCount = baseCount + snap.size;
-                    
-                    list.innerHTML = snap.docs.map(doc => {
-                        const d = doc.data();
-                        currentSum += parseInt(d.stars);
-                        return `
-                            <div class="rev-card">
-                                <div class="mono" style="color:var(--accent); font-size:0.6rem; margin-bottom:15px;">CLIENT_NODE_${doc.id.substring(0,5)}</div>
-                                <p style="font-size:0.9rem; line-height:1.6; color:var(--text-dim)">"${d.text}"</p>
-                                <div style="color:var(--accent); margin-top:20px; font-size:0.7rem;">${"★".repeat(d.stars)}</div>
-                            </div>
-                        `;
+                    let s = baseSum, c = baseVotes + snap.size;
+                    document.getElementById('rev-list').innerHTML = snap.docs.map(doc => {
+                        const d = doc.data(); s += parseInt(d.stars);
+                        return `<div class="rev-card">
+                            <div class="mono" style="color:var(--accent); font-size:0.55rem; margin-bottom:15px;">NODE_ID_${doc.id.substring(0,6)}</div>
+                            <p style="font-size:0.9rem; line-height:1.6; color:var(--text-dim)">"${d.text}"</p>
+                            <div style="color:var(--accent); margin-top:15px;">${"★".repeat(d.stars)}</div>
+                        </div>`;
                     }).join('');
-
-                    document.getElementById('avg-val').innerText = (currentSum / currentCount).toFixed(1);
-                    document.getElementById('vote-count').innerText = `${currentCount}_VOTES_LOGGED`;
+                    document.getElementById('avg-val').innerText = (s/c).toFixed(1);
+                    document.getElementById('vote-count').innerText = `${c}_VOTES_LOGGED`;
                 });
             },
             post() {
                 const val = document.getElementById('rev-input').value;
-                if(!val) return;
-                db.collection("reviews").add({
-                    user: auth.currentUser.displayName.toUpperCase(),
-                    stars: this.stars,
-                    text: val,
-                    ts: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                if(val) db.collection("reviews").add({ user: auth.currentUser.displayName, stars: this.stars, text: val, ts: firebase.firestore.FieldValue.serverTimestamp() });
                 document.getElementById('rev-input').value = '';
             }
         };
@@ -317,16 +345,25 @@
             auth: {
                 init() {
                     auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(res => {
-                        document.getElementById('auth-gate').style.display = 'none';
+                        document.getElementById('gate').style.display = 'none';
                         document.getElementById('app-root').style.display = 'block';
-                        document.getElementById('node-id').innerText = `NODE_ID: ${res.user.displayName.toUpperCase()}`;
-                        Chat.init();
-                        Reviews.init();
-                        Secure.check();
+                        document.getElementById('node-tag').innerText = `NODE: ${res.user.displayName.toUpperCase()}`;
+                        Chat.init(); Reviews.init();
+                        if(!localStorage.getItem('loupa_consent')) document.getElementById('cookie-shield').style.display = 'block';
                     });
                 }
             },
-            secure: Secure,
+            secure: { accept() { localStorage.setItem('loupa_consent', 'true'); document.getElementById('cookie-shield').style.display = 'none'; } },
+            logic: {
+                filter: cat => {
+                    const g = document.getElementById('grid-target');
+                    const d = cat === 'ALL' ? assets : assets.filter(a => a.cat === cat);
+                    g.innerHTML = d.map(s => `<div class="card ${s.cat==='LAZY'?'lazy-card':''} reveal active">
+                        <div><span class="hero-pre">${s.cat}</span><h3>${s.name}</h3><p>${s.desc}</p></div>
+                        <div><div class="price ${s.price==0?'free':''}">$${s.price}</div><button class="btn ${s.cat==='LAZY'?'btn-lazy':''}" style="width:100%">${s.price==0?'CLAIM':'DEPLOY'}</button></div>
+                    </div>`).join('');
+                }
+            },
             reviews: Reviews,
             ui: {
                 init() {
@@ -335,6 +372,20 @@
                         d.style.left = e.clientX + 'px'; d.style.top = e.clientY + 'px';
                         r.style.transform = `translate(${e.clientX-20}px, ${e.clientY-20}px)`;
                     };
+                    const type = () => {
+                        const w = ["INTERFACES.", "ALGORITHMS.", "ECOSYSTEMS.", "PROTOCOLS."];
+                        let i=0, j=0, del=false;
+                        const loop = () => {
+                            const cur = w[i];
+                            document.getElementById('type-target').innerText = del ? cur.substring(0, j--) : cur.substring(0, j++);
+                            if(!del && j > cur.length) { del=true; setTimeout(loop, 2000); }
+                            else if(del && j==0) { del=false; i=(i+1)%w.length; setTimeout(loop, 400); }
+                            else setTimeout(loop, del?50:110);
+                        };
+                        loop();
+                    };
+                    type();
+                    window.onscroll = () => document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
                     const obs = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); }));
                     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
                 }
@@ -342,23 +393,15 @@
         };
     })();
 
-    window.onload = () => { 
-        Loupa.ui.init(); 
-        Loupa.LoupaEngine = Loupa; // Global ref
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        
-        let rain = Array.from({length: 100}, () => ({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*5+2 }));
-        
+    window.onload = () => { Loupa.ui.init(); Loupa.logic.filter('ALL'); 
+        const c = document.getElementById('titan-canvas');
+        const ctx = c.getContext('2d');
+        c.width = window.innerWidth; c.height = window.innerHeight;
+        let rain = Array.from({length: 60}, () => ({ x: Math.random()*c.width, y: Math.random()*c.height, v: Math.random()*4+1 }));
         function draw() {
-            ctx.fillStyle = 'rgba(1,1,1,0.15)';
-            ctx.fillRect(0,0,canvas.width,canvas.height);
-            ctx.fillStyle = 'rgba(255,85,0,0.15)';
-            rain.forEach(r => {
-                r.y += r.v; if(r.y > canvas.height) r.y = -20;
-                ctx.fillRect(r.x, r.y, 1, 15);
-            });
+            ctx.fillStyle = 'rgba(2,2,2,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+            ctx.fillStyle = 'rgba(255,85,0,0.2)';
+            rain.forEach(r => { r.y += r.v; if(r.y > c.height) r.y = -20; ctx.fillRect(r.x, r.y, 1, 15); });
             requestAnimationFrame(draw);
         }
         draw();
