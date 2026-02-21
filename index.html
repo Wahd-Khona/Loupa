@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Loupa // Digital Architects</title>
+  <title>LOUPA // Digital Architects</title>
   
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -14,156 +14,194 @@
   
   <style>
     :root {
-      --bg: #050505;
-      --glass: rgba(255, 255, 255, 0.03);
-      --glass-hover: rgba(255, 255, 255, 0.08);
-      --border: rgba(255, 255, 255, 0.1);
+      --bg: #030303;
+      --glass: rgba(255, 255, 255, 0.02);
+      --glass-border: rgba(255, 255, 255, 0.08);
       --accent: #ff5500; 
-      --accent-glow: rgba(255, 85, 0, 0.4);
-      --text-main: #ffffff;
-      --text-muted: #888888;
-      --ease: cubic-bezier(0.23, 1, 0.32, 1);
+      --accent-muted: #802b00;
+      --accent-glow: rgba(255, 85, 0, 0.2);
+      --text-main: #f0f0f0;
+      --text-muted: #666666;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     * { box-sizing: border-box; cursor: none; }
-    html, body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; overflow-x: hidden; scroll-behavior: smooth; }
-    h1, h2, h3, .brand { font-family: 'Space Grotesk', sans-serif; }
-
-    /* --- Admin Terminal --- */
-    #admin-panel {
-      position: fixed; inset: 0; background: rgba(5,5,5,0.98); z-index: 10001;
-      display: none; padding: 4rem; overflow-y: auto; font-family: 'JetBrains Mono', monospace;
-      border: 1px solid var(--accent);
+    body { 
+        margin: 0; background-color: var(--bg); color: var(--text-main); 
+        font-family: 'Inter', sans-serif; overflow-x: hidden; line-height: 1.5;
     }
-    .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 3rem; }
-    .stat-box { background: var(--glass); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; }
-    .stat-box h4 { margin: 0; font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
-    .stat-box p { font-size: 1.8rem; margin: 10px 0 0; font-weight: 700; }
-    
-    table { width: 100%; border-collapse: collapse; margin-top: 2rem; font-size: 0.85rem; }
-    th { text-align: left; color: var(--text-muted); padding: 15px; border-bottom: 1px solid var(--border); }
-    td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.02); }
-    .btn-admin-small { background: var(--accent); border: none; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; }
 
-    /* --- UI Modules --- */
-    #auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 10000; display: flex; justify-content: center; align-items: center; }
-    #cursor { position: fixed; top: 0; left: 0; width: 20px; height: 20px; border: 1px solid white; border-radius: 50%; pointer-events: none; z-index: 10002; transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s; mix-blend-mode: difference; }
-    #cursor-glow { position: fixed; top: 0; left: 0; width: 400px; height: 400px; background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%); transform: translate(-50%, -50%); pointer-events: none; z-index: 0; opacity: 0.15; }
-    #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+    /* --- Custom Scrollbar --- */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); }
 
-    nav { position: fixed; top: 0; width: 100%; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
-    .brand { font-weight: 700; font-size: 1.5rem; letter-spacing: -1px; text-decoration: none; color: white; }
+    /* --- Background Systems --- */
+    #canvas-bg { position: fixed; inset: 0; z-index: -1; opacity: 0.4; }
+    #cursor { 
+        position: fixed; width: 10px; height: 10px; background: #fff; 
+        border-radius: 50%; pointer-events: none; z-index: 10002; 
+        transition: transform 0.1s var(--ease), width 0.3s, height 0.3s;
+    }
+    #cursor-follower {
+        position: fixed; width: 40px; height: 40px; border: 1px solid var(--accent);
+        border-radius: 50%; pointer-events: none; z-index: 10001;
+        transition: transform 0.15s var(--ease);
+    }
+
+    /* --- Layout & Typography --- */
+    section { padding: 10rem 10% 5rem; max-width: 1600px; margin: 0 auto; }
+    .brand { font-family: 'Space Grotesk'; font-weight: 700; font-size: 1.8rem; letter-spacing: -2px; color: #fff; text-decoration: none; }
     .brand span { color: var(--accent); }
-    .user-pill { display: flex; align-items: center; gap: 10px; background: var(--glass); padding: 5px 12px; border-radius: 50px; border: 1px solid var(--border); font-size: 0.8rem; }
-    
-    .review-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 4rem; margin-top: 4rem; }
-    .review-card { background: var(--glass); border: 1px solid var(--border); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; }
-    .stars { color: var(--accent); margin-bottom: 0.5rem; }
-    
-    section { padding: 8rem 2rem; max-width: 1400px; margin: 0 auto; }
-    .btn { padding: 1rem 2rem; border-radius: 4px; text-decoration: none; font-weight: 600; font-family: 'Space Grotesk'; transition: 0.3s var(--ease); border: 1px solid transparent; display: inline-block; text-align: center; }
-    .btn-primary { background: var(--accent); color: white; box-shadow: 0 0 20px var(--accent-glow); }
-    .btn-secondary { background: transparent; border-color: var(--border); color: white; }
-    .reveal { opacity: 0; transform: translateY(30px); transition: 0.8s var(--ease); }
+
+    /* --- Navigation --- */
+    nav { 
+        position: fixed; top: 0; width: 100%; padding: 1.5rem 5%; 
+        display: flex; justify-content: space-between; align-items: center; 
+        z-index: 100; backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border);
+    }
+
+    /* --- Hero Section --- */
+    .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+    .hero h1 { font-family: 'Space Grotesk'; font-size: clamp(3.5rem, 10vw, 8rem); line-height: 0.9; margin: 0; font-weight: 700; }
+    .hero-meta { font-family: 'JetBrains Mono'; color: var(--accent); font-size: 0.8rem; letter-spacing: 4px; margin-bottom: 1.5rem; }
+
+    /* --- Grid Services --- */
+    .services-grid { 
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+        gap: 1.5rem; margin-top: 4rem; 
+    }
+    .service-card {
+        background: var(--glass); border: 1px solid var(--glass-border);
+        padding: 3rem 2rem; border-radius: 4px; transition: 0.4s var(--ease);
+        position: relative; overflow: hidden;
+    }
+    .service-card:hover { 
+        background: rgba(255,255,255,0.05); border-color: var(--accent);
+        transform: translateY(-10px);
+    }
+    .service-card h3 { font-family: 'Space Grotesk'; font-size: 1.5rem; margin-bottom: 1rem; }
+    .service-card p { color: var(--text-muted); font-size: 0.95rem; }
+    .service-card .icon { color: var(--accent); font-family: 'JetBrains Mono'; font-size: 0.8rem; margin-bottom: 2rem; display: block; }
+
+    /* --- Buttons --- */
+    .btn {
+        padding: 1.2rem 2.5rem; border-radius: 2px; font-family: 'Space Grotesk';
+        font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+        transition: 0.3s; display: inline-block; text-decoration: none;
+    }
+    .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 10px 30px var(--accent-glow); }
+    .btn-primary:hover { transform: scale(1.05); background: #ff6622; }
+    .btn-secondary { border: 1px solid var(--glass-border); color: #fff; }
+    .btn-secondary:hover { background: #fff; color: #000; }
+
+    /* --- Reveal Animation --- */
+    .reveal { opacity: 0; transform: translateY(40px); transition: 1s var(--ease); }
     .reveal.active { opacity: 1; transform: translateY(0); }
+
+    /* --- Pricing/Vault --- */
+    .vault-box {
+        max-width: 600px; margin: 0 auto; text-align: center;
+        background: linear-gradient(145deg, rgba(15,15,15,1) 0%, rgba(5,5,5,1) 100%);
+        padding: 4rem; border: 1px solid var(--accent-muted); border-radius: 8px;
+    }
+
+    #auth-overlay {
+        position: fixed; inset: 0; background: var(--bg); z-index: 10000;
+        display: flex; justify-content: center; align-items: center; text-align: center;
+    }
+
+    /* Admin Panel Upgrade */
+    #admin-panel {
+        position: fixed; inset: 0; background: #000; z-index: 10001; padding: 5%;
+        font-family: 'JetBrains Mono'; display: none;
+    }
   </style>
 </head>
 <body>
 
-  <div id="cursor"></div>
-  <div id="cursor-glow"></div>
-  <canvas id="canvas-bg"></canvas>
+<div id="cursor"></div>
+<div id="cursor-follower"></div>
+<canvas id="canvas-bg"></canvas>
 
-  <div id="admin-panel">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem">
-      <h2 style="color:var(--accent)">[SYSTEM_CORE_ADMIN]</h2>
-      <button onclick="toggleAdmin()" class="btn btn-secondary">EXIT_ESC</button>
+<div id="auth-overlay">
+    <div class="reveal active">
+        <h1 class="brand" style="font-size: 4rem;">LOUPA<span>.</span></h1>
+        <p style="color: var(--text-muted); font-family: 'JetBrains Mono'; margin-bottom: 3rem;">CORE_SYSTEM_ACCESS_REQUIRED</p>
+        <button onclick="handleLogin()" class="btn btn-primary">Establish Connection</button>
     </div>
-    <div class="admin-grid">
-      <div class="stat-box"><h4>TOTAL_USERS</h4><p id="adm-users">0</p></div>
-      <div class="stat-box"><h4>REVENUE</h4><p id="adm-rev">$0</p></div>
-      <div class="stat-box"><h4>ACTIVE_IPS</h4><p id="adm-ips">1</p></div>
-      <div class="stat-box"><h4>CONV_RATE</h4><p id="adm-conv">0%</p></div>
-    </div>
-    <table>
-      <thead><tr><th>USER</th><th>EMAIL</th><th>IP_ADDRESS</th><th>STATUS</th><th>COMMAND</th></tr></thead>
-      <tbody id="adm-user-list"></tbody>
-    </table>
-  </div>
+</div>
 
-  <div id="auth-overlay">
-    <div style="padding: 4rem; border: 1px solid var(--border); border-radius: 20px; text-align: center; background: rgba(255,255,255,0.01);">
-      <h1 class="brand">LOUPA<span>.</span></h1>
-      <p style="color: var(--text-muted); margin-bottom: 2rem;">INITIALIZE SECURE SESSION</p>
-      <button onclick="handleLogin()" class="btn btn-primary">SIGN IN WITH GOOGLE</button>
-    </div>
-  </div>
-
-  <nav>
+<nav>
     <a href="#" class="brand">LOUPA<span>.</span></a>
-    <div style="display: flex; align-items: center; gap: 20px;">
-      <div id="admin-indicator" style="display:none; font-family: 'JetBrains Mono'; font-size:0.6rem; color:var(--accent)">[ADMIN_READY]</div>
-      <div class="user-pill">
-        <span id="u-name">GUEST</span>
-        <span onclick="auth.signOut()" style="margin-left:10px; color:var(--accent); cursor:pointer;">[EXIT]</span>
-      </div>
+    <div style="display: flex; gap: 30px; align-items: center;">
+        <span id="sys-uptime" style="font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--text-muted);">UPTIME: 99.9%</span>
+        <div class="user-pill" id="u-pill" style="display:none; font-family: 'JetBrains Mono'; font-size: 0.8rem; border: 1px solid var(--accent); padding: 5px 15px;">
+            <span id="u-name">...</span>
+            <span onclick="auth.signOut()" style="margin-left: 15px; color: var(--accent); cursor: pointer;">[DISCONNECT]</span>
+        </div>
     </div>
-  </nav>
+</nav>
 
-  <div id="main-content" style="display:none">
-    <header>
-      <div class="reveal">
-        <div style="color:var(--accent); letter-spacing:2px; font-size:0.8rem; margin-bottom:1rem">SECURE PORTFOLIO V.2.0</div>
-        <h1 style="font-size: clamp(3rem, 8vw, 6rem); line-height: 1;">WE BUILD <br> <span id="typewriter" style="color: var(--accent);"></span></h1>
-        <p style="max-width: 500px; color: var(--text-muted); line-height: 1.6;">Digital foundry forging code into scalable assets. Professional automation and system architecture.</p>
-        <div style="margin-top:2rem; display:flex; gap:15px;">
-          <a href="#pricing" class="btn btn-primary">Start Project</a>
-          <a href="#reviews" class="btn btn-secondary">Client Reviews</a>
+<div id="main-content" style="display:none">
+    <section class="hero">
+        <div class="reveal">
+            <div class="hero-meta">// DIGITAL ARCHITECTS</div>
+            <h1>SYSTEMS<br><span id="typewriter" style="color: var(--accent);"></span></h1>
+            <p style="max-width: 600px; color: var(--text-muted); margin: 2rem 0; font-size: 1.1rem;">
+                Loupa is a high-performance digital foundry. We specialize in building autonomous infrastructure, scalable codebases, and intelligent automation.
+            </p>
+            <div style="display: flex; gap: 20px;">
+                <a href="#services" class="btn btn-primary">Capabilities</a>
+                <a href="#vault" class="btn btn-secondary">The Vault</a>
+            </div>
         </div>
-      </div>
-    </header>
-
-    <section id="pricing">
-      <div class="reveal" style="max-width:500px; margin: 0 auto; text-align: center; border: 1px solid var(--accent); padding: 3rem; border-radius: 20px; background: var(--glass);">
-        <div id="pay-status" style="font-size:0.7rem; color:var(--text-muted); margin-bottom:1rem;">STATUS: ACTION_REQUIRED</div>
-        <h3>Python Automation Vault</h3>
-        <h2 id="product-price" style="font-size:3rem; margin:1rem 0;">$49.00</h2>
-        <div id="paypal-container"></div>
-        <div id="unlocked-content" style="display:none;">
-          <p>🔓 ACCESS GRANTED</p>
-          <a href="YOUR_LINK_HERE" class="btn btn-primary" style="width:100%">DOWNLOAD_VAULT.ZIP</a>
-        </div>
-      </div>
     </section>
 
-    <section id="reviews">
-      <div class="section-header reveal">
-        <h2>Reputation</h2>
-        <div style="width: 60px; height: 2px; background: var(--accent); margin-top: 1rem;"></div>
-      </div>
-      <div class="review-grid reveal">
-        <div>
-          <div style="font-size: 5rem; font-weight: 700; color: var(--accent);" id="avg-val">4.3</div>
-          <div class="stars">★★★★★</div>
-          <p id="total-count" style="color: var(--text-muted);">Based on 152 verified clients</p>
-          <div style="margin-top: 2rem; padding: 1.5rem; border: 1px solid var(--border); border-radius: 12px;">
-            <h4>Add Review</h4>
-            <select id="rev-stars" style="width:100%; background:black; color:white; border:1px solid var(--border); padding:10px; margin: 10px 0;">
-              <option value="5">★★★★★</option><option value="4">★★★★☆</option><option value="3">★★★☆☆</option>
-            </select>
-            <textarea id="rev-text" placeholder="Transmission..." style="width:100%; background:black; color:white; border:1px solid var(--border); padding:10px; height: 80px;"></textarea>
-            <button onclick="postReview()" class="btn btn-primary" style="width:100%; margin-top:10px;">POST</button>
-          </div>
+    <section id="services">
+        <div class="reveal">
+            <h2 style="font-family: 'Space Grotesk'; font-size: 3rem;">Capabilities</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <span class="icon">01 // ARCHITECTURE</span>
+                    <h3>Cloud Systems</h3>
+                    <p>Scalable backend infrastructure designed for 99.99% uptime and global low-latency response.</p>
+                </div>
+                <div class="service-card">
+                    <span class="icon">02 // AUTOMATION</span>
+                    <h3>Python Flux</h3>
+                    <p>Custom workflow automation that eliminates repetitive tasks and optimizes business logic.</p>
+                </div>
+                <div class="service-card">
+                    <span class="icon">03 // INTELLIGENCE</span>
+                    <h3>Neural Nodes</h3>
+                    <p>Integrating Large Language Models and custom AI agents into your existing ecosystem.</p>
+                </div>
+            </div>
         </div>
-        <div id="live-reviews-container">
-           <div class="review-card"><div class="stars">★★★★★</div><p>"Code is clean, efficient, and perfectly structured."</p><small>- Verified Buyer</small></div>
-        </div>
-      </div>
     </section>
-  </div>
 
-  <script>
-    // --- 🔥 YOUR CONFIGURATION ---
+    <section id="vault">
+        <div class="vault-box reveal">
+            <div id="pay-status" style="font-family:'JetBrains Mono'; font-size:0.7rem; color: var(--accent); margin-bottom: 2rem;">[SYSTEM_LOCKED]</div>
+            <h2 style="font-family: 'Space Grotesk'; font-size: 2.5rem; margin: 0;">The Python Vault</h2>
+            <p style="color: var(--text-muted); margin: 1rem 0 3rem;">Unlock our proprietary automation library. 50+ scripts for data mining, auto-deployment, and system monitoring.</p>
+            
+            <div id="product-price" style="font-size: 3rem; font-family: 'Space Grotesk'; margin-bottom: 2rem;">$49.00</div>
+            <div id="paypal-container"></div>
+            
+            <div id="unlocked-content" style="display:none;">
+                <div style="padding: 2rem; border: 1px solid var(--accent); background: rgba(255, 85, 0, 0.05);">
+                    <p>ACCESS GRANTED. ENCRYPTED LINK GENERATED.</p>
+                    <a href="#" class="btn btn-primary" style="width: 100%;">Initialize Download</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    // --- FIREBASE CONFIG (SAME AS YOURS) ---
     const ADMIN_EMAIL = "wahdkhonafdar@gmail.com"; 
     const firebaseConfig = {
       apiKey: "AIzaSyDwkqu_JpelnceEjwbdP76hzwQ1JMFI2D0",
@@ -173,134 +211,124 @@
       messagingSenderId: "1062889452519",
       appId: "1:1062889452519:web:a412e262ba0981d3c3c342"
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+    // --- AUTH LOGIC ---
     async function handleLogin() {
       const provider = new firebase.auth.GoogleAuthProvider();
-      const res = await auth.signInWithPopup(provider);
-      const ipRes = await fetch('https://api.ipify.org?format=json');
-      const ipData = await ipRes.json();
-      await db.collection("users").doc(res.user.uid).set({
-        name: res.user.displayName, email: res.user.email, ip: ipData.ip, lastSeen: new Date()
-      }, { merge: true });
+      try {
+          const res = await auth.signInWithPopup(provider);
+          document.getElementById('auth-overlay').style.opacity = '0';
+          setTimeout(() => document.getElementById('auth-overlay').style.display = 'none', 500);
+      } catch(e) { console.error(e); }
     }
 
-    auth.onAuthStateChanged(async user => {
+    auth.onAuthStateChanged(user => {
       if(user) {
         document.getElementById('auth-overlay').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
-        document.getElementById('u-name').innerText = user.displayName.split(' ')[0].toUpperCase();
-        if(user.email === ADMIN_EMAIL) document.getElementById('admin-indicator').style.display = 'block';
-        const doc = await db.collection("users").doc(user.uid).get();
-        if(doc.exists && doc.data().hasPaid) unlockProduct(); else initPaypal();
-        loadReviews();
+        document.getElementById('u-pill').style.display = 'flex';
+        document.getElementById('u-name').innerText = user.displayName.toUpperCase();
+        checkPayment(user.uid);
       } else {
         document.getElementById('auth-overlay').style.display = 'flex';
         document.getElementById('main-content').style.display = 'none';
       }
     });
 
-    window.addEventListener('keydown', e => {
-      if(e.shiftKey && e.key === 'A' && auth.currentUser.email === ADMIN_EMAIL) toggleAdmin();
-      if(e.key === 'Escape') document.getElementById('admin-panel').style.display = 'none';
-    });
-
-    function toggleAdmin() {
-      const p = document.getElementById('admin-panel');
-      p.style.display = p.style.display === 'block' ? 'none' : 'block';
-      if(p.style.display === 'block') refreshAdmin();
+    async function checkPayment(uid) {
+        const doc = await db.collection("users").doc(uid).get();
+        if(doc.exists && doc.data().hasPaid) {
+            unlockVault();
+        } else {
+            initPaypal();
+        }
     }
 
-    async function refreshAdmin() {
-      const snap = await db.collection("users").get();
-      const list = document.getElementById('adm-user-list');
-      list.innerHTML = ''; let paid = 0;
-      snap.forEach(doc => {
-        const d = doc.data(); if(d.hasPaid) paid++;
-        list.innerHTML += `<tr><td>${d.name}</td><td>${d.email}</td><td>${d.ip}</td><td>${d.hasPaid ? 'PAID':'PENDING'}</td>
-        <td><button onclick="grant('${doc.id}')" class="btn-admin-small">GRANT</button></td></tr>`;
-      });
-      document.getElementById('adm-users').innerText = snap.size;
-      document.getElementById('adm-rev').innerText = `$${paid * 49}`;
-    }
-
-    async function grant(uid) {
-      await db.collection("users").doc(uid).update({hasPaid: true}); refreshAdmin();
+    function unlockVault() {
+        document.getElementById('paypal-container').style.display = 'none';
+        document.getElementById('product-price').style.display = 'none';
+        document.getElementById('unlocked-content').style.display = 'block';
+        document.getElementById('pay-status').innerText = "[ACCESS_GRANTED]";
     }
 
     function initPaypal() {
-      if (document.getElementById('paypal-container').children.length > 0) return;
-      paypal.Buttons({
-        createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '49.00' } }] }),
-        onApprove: (d, a) => a.order.capture().then(async () => {
-          await db.collection("users").doc(auth.currentUser.uid).update({hasPaid: true}); unlockProduct();
-        })
-      }).render('#paypal-container');
+        if (document.getElementById('paypal-container').children.length > 0) return;
+        paypal.Buttons({
+            createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '49.00' } }] }),
+            onApprove: (d, a) => a.order.capture().then(async () => {
+                await db.collection("users").doc(auth.currentUser.uid).set({hasPaid: true}, {merge: true});
+                unlockVault();
+            })
+        }).render('#paypal-container');
     }
 
-    function unlockProduct() {
-      document.getElementById('paypal-container').style.display = 'none';
-      document.getElementById('product-price').style.display = 'none';
-      document.getElementById('unlocked-content').style.display = 'block';
-      document.getElementById('pay-status').innerText = "STATUS: ACCESS_ACTIVE";
-      document.getElementById('pay-status').style.color = "var(--accent)";
-    }
+    // --- VISUAL ENGINE ---
+    const cursor = document.getElementById('cursor');
+    const follower = document.getElementById('cursor-follower');
+    
+    document.addEventListener('mousemove', e => {
+        cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+        follower.style.transform = `translate3d(${e.clientX - 15}px, ${e.clientY - 15}px, 0)`;
+    });
 
-    let bCount = 152; let bSum = 654; 
-    async function loadReviews() {
-      const meta = await db.collection("stats").doc("reviews").get();
-      let t = bCount, s = bSum;
-      if(meta.exists) { t += meta.data().count; s += meta.data().sum; }
-      document.getElementById('avg-val').innerText = (s/t).toFixed(1);
-      document.getElementById('total-count').innerText = `Based on ${t} verified clients`;
-      const rSnap = await db.collection("reviews").orderBy("time", "desc").limit(5).get();
-      rSnap.forEach(d => {
-        const data = d.data();
-        document.getElementById('live-reviews-container').insertAdjacentHTML('afterbegin', 
-        `<div class="review-card"><div class="stars">${"★".repeat(data.stars)}</div><p>${data.text}</p><small>- ${data.name}</small></div>`);
-      });
-    }
-
-    async function postReview() {
-      const stars = parseInt(document.getElementById('rev-stars').value);
-      const text = document.getElementById('rev-text').value; if(!text) return;
-      await db.collection("reviews").add({ name: auth.currentUser.displayName, stars, text, time: new Date() });
-      await db.collection("stats").doc("reviews").set({ count: firebase.firestore.FieldValue.increment(1), sum: firebase.firestore.FieldValue.increment(stars) }, { merge: true });
-      location.reload();
-    }
-
-    // --- Visuals ---
+    // Background Particles
     const canvas = document.getElementById('canvas-bg');
     const ctx = canvas.getContext('2d');
     let width, height, particles = [];
-    function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-    window.addEventListener('resize', resize); resize();
-    class Particle {
-      constructor() { this.x = Math.random()*width; this.y = Math.random()*height; this.vx = (Math.random()-0.5)*0.5; this.vy = (Math.random()-0.5)*0.5; }
-      update() { this.x += this.vx; this.y += this.vy; if(this.x<0||this.x>width) this.vx*=-1; if(this.y<0||this.y>height) this.vy*=-1; }
-      draw() { ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.arc(this.x, this.y, 1, 0, Math.PI*2); ctx.fill(); }
+
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
     }
-    for(let i=0; i<60; i++) particles.push(new Particle());
-    function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
+    window.addEventListener('resize', resize);
+    resize();
+
+    class P {
+        constructor() { this.reset(); }
+        reset() {
+            this.x = Math.random() * width;
+            this.y = Math.random() * height;
+            this.v = Math.random() * 0.5 + 0.2;
+        }
+        update() {
+            this.y -= this.v;
+            if (this.y < 0) this.reset();
+        }
+        draw() {
+            ctx.fillStyle = 'rgba(255, 85, 0, 0.3)';
+            ctx.fillRect(this.x, this.y, 1, 1);
+        }
+    }
+    for(let i=0; i<100; i++) particles.push(new P());
+
+    function animate() {
+        ctx.clearRect(0,0,width,height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+    }
     animate();
-    document.addEventListener('mousemove', e => {
-      document.getElementById('cursor').style.left = e.clientX+'px'; document.getElementById('cursor').style.top = e.clientY+'px';
-      document.getElementById('cursor-glow').style.left = e.clientX+'px'; document.getElementById('cursor-glow').style.top = e.clientY+'px';
-    });
-    const observer = new IntersectionObserver(entries => { entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); }); }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    const words = ["THE DIGITAL FUTURE", "ROBUST CODE", "CREATIVE SYSTEMS"];
-    let wIdx = 0, cIdx = 0, isDel = false;
+
+    // Typewriter
+    const words = ["THAT SCALE.", "THAT THINK.", "THAT LAST."];
+    let wI = 0, cI = 0, del = false;
     function type() {
-      const cur = words[wIdx]; document.getElementById('typewriter').textContent = isDel ? cur.substring(0, cIdx--) : cur.substring(0, cIdx++);
-      if(!isDel && cIdx > cur.length) { isDel = true; setTimeout(type, 2000); }
-      else if(isDel && cIdx === 0) { isDel = false; wIdx = (wIdx+1)%words.length; setTimeout(type, 500); }
-      else setTimeout(type, isDel ? 50 : 100);
+        const cur = words[wI];
+        document.getElementById('typewriter').innerText = del ? cur.substring(0, cI--) : cur.substring(0, cI++);
+        if(!del && cI > cur.length) { del = true; setTimeout(type, 2000); }
+        else if(del && cI === 0) { del = false; wI = (wI+1)%words.length; setTimeout(type, 500); }
+        else setTimeout(type, del ? 40 : 80);
     }
     type();
-  </script>
+
+    // Intersection Observer
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(en => { if(en.isIntersecting) en.target.classList.add('active'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+</script>
 </body>
 </html>
