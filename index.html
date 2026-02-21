@@ -1,91 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>LOUPA // NEPTUNE v30.0</title>
-    <meta name="theme-color" content="#ff5500">
-    <meta name="description" content="LOUPA: The Ultimate Web Task Orchestrator. Simplified, Professional, High-Performance.">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;900&family=JetBrains+Mono:wght@100;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --orange: #ff5500; --orange-dim: #772200;
-            --bg: #000000; --surface: #0a0a0a;
-            --text: #ffffff; --text-dim: #666666;
-            --font-main: 'Space Grotesk', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-            --ease: cubic-bezier(0.16, 1, 0.3, 1);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>LOUPA // NEPTUNE v30.1</title>
+<meta name="theme-color" content="#ff5500">
+<meta name="description" content="LOUPA: The Ultimate Web Task Orchestrator. Monetized, Professional, High-Performance.">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;900&family=JetBrains+Mono:wght@100;700&display=swap" rel="stylesheet">
 
-        * { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
-        body { background: var(--bg); color: var(--text); font-family: var(--font-main); overflow-x: hidden; scroll-behavior: smooth; }
-        
-        /* Cursor System */
-        #c-dot, #c-ring { position: fixed; pointer-events: none; z-index: 999999; border-radius: 50%; top:0; left:0; }
-        #c-dot { width: 5px; height: 5px; background: #fff; }
-        #c-ring { width: 35px; height: 35px; border: 1px solid var(--orange); transform: translate(-50%, -50%); transition: width 0.3s var(--ease), border-color 0.3s; }
+<style>
+:root {
+    --orange: #ff5500; --orange-dim: #772200;
+    --bg: #000000; --surface: #0a0a0a;
+    --text: #ffffff; --text-dim: #666666;
+    --font-main: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-        /* Navigation */
-        nav { 
-            position: fixed; top: 0; width: 100%; height: 80px; z-index: 10000;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 4%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,85,0,0.1);
-        }
-        .brand { font-weight: 900; font-size: 1.5rem; letter-spacing: -2px; }
-        .nav-links { display: flex; gap: 20px; align-items: center; }
+* { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-main); overflow-x: hidden; scroll-behavior: smooth; }
 
-        /* Dashboard Tiers */
-        .viewport { min-height: 100vh; padding: 120px 4% 60px; display: none; }
-        .viewport.active { display: block; animation: slideUp 0.6s var(--ease); }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+/* Cursor */
+#c-dot, #c-ring { position: fixed; pointer-events: none; z-index: 999999; border-radius: 50%; top:0; left:0; }
+#c-dot { width: 5px; height: 5px; background: #fff; }
+#c-ring { width: 35px; height: 35px; border: 1px solid var(--orange); transform: translate(-50%, -50%); transition: width 0.3s var(--ease), border-color 0.3s; }
 
-        .tier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
-        .card { 
-            background: var(--surface); border: 1px solid rgba(255,255,255,0.05); 
-            padding: 30px; position: relative; transition: 0.4s var(--ease); 
-            display: flex; flex-direction: column; justify-content: space-between; min-height: 380px;
-        }
-        .card:hover { border-color: var(--orange); transform: translateY(-8px); background: #0f0f0f; }
-        .card.locked { opacity: 0.6; filter: grayscale(1); }
-        .card.locked::after { content: "LOCKED // LVL 2+"; position: absolute; top: 10px; right: 10px; font-family: var(--font-mono); font-size: 10px; color: var(--orange); }
+/* Navigation */
+nav { position: fixed; top: 0; width: 100%; height: 80px; z-index: 10000;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 4%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,85,0,0.1);
+}
+.brand { font-weight: 900; font-size: 1.5rem; letter-spacing: -2px; }
+.nav-links { display: flex; gap: 20px; align-items: center; }
 
-        .btn { 
-            background: var(--orange); color: #000; border: none; padding: 15px 25px; 
-            font-family: var(--font-mono); font-weight: 900; text-transform: uppercase; 
-            width: 100%; transition: 0.2s;
-        }
-        .btn:hover { background: #fff; transform: scale(1.02); }
-        .btn:active { transform: scale(0.98); }
+/* Dashboard Tiers */
+.viewport { min-height: 100vh; padding: 120px 4% 60px; display: none; }
+.viewport.active { display: block; animation: slideUp 0.6s var(--ease); }
+@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Hyper-Terminal */
-        #term-wrap { 
-            position: fixed; bottom: 30px; right: 30px; width: 450px; height: 350px; 
-            background: rgba(5,5,5,0.95); border: 1px solid var(--orange); z-index: 20000;
-            display: flex; flex-direction: column; transform: translateY(calc(100% + 50px)); transition: 0.5s var(--ease);
-        }
-        #term-wrap.open { transform: translateY(0); }
-        .term-header { padding: 10px; background: var(--orange); color: #000; font-family: var(--font-mono); font-size: 11px; font-weight: 900; display: flex; justify-content: space-between; }
-        #term-out { flex: 1; padding: 15px; overflow-y: auto; font-family: var(--font-mono); font-size: 12px; color: var(--orange); line-height: 1.4; }
-        .term-in { background: transparent; border: none; border-top: 1px solid var(--orange-dim); padding: 15px; color: #fff; font-family: var(--font-mono); }
+.tier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+.card { background: var(--surface); border: 1px solid rgba(255,255,255,0.05); padding: 30px; position: relative; transition: 0.4s var(--ease); display: flex; flex-direction: column; justify-content: space-between; min-height: 380px; }
+.card:hover { border-color: var(--orange); transform: translateY(-8px); background: #0f0f0f; }
+.card.locked { opacity: 0.6; filter: grayscale(1); }
+.card.locked::after { content: "LOCKED // LVL 2+"; position: absolute; top: 10px; right: 10px; font-family: var(--font-mono); font-size: 10px; color: var(--orange); }
 
-        /* Stats Bar */
-        .stats-bar { display: flex; gap: 30px; margin-bottom: 40px; }
-        .stat-item { font-family: var(--font-mono); }
-        .stat-val { font-size: 1.5rem; color: var(--orange); font-weight: 900; display: block; }
+.btn { background: var(--orange); color: #000; border: none; padding: 15px 25px; font-family: var(--font-mono); font-weight: 900; text-transform: uppercase; width: 100%; transition: 0.2s; }
+.btn:hover { background: #fff; transform: scale(1.02); }
+.btn:active { transform: scale(0.98); }
 
-        /* Mobile / TV Adaptations */
-        @media (max-width: 768px) {
-            * { cursor: auto !important; }
-            #c-dot, #c-ring { display: none; }
-            #term-wrap { width: 100%; right: 0; bottom: 0; height: 50%; }
-        }
-        @media (min-width: 2500px) { /* Smart TV 4K */
-            html { font-size: 24px; }
-            .tier-grid { grid-template-columns: repeat(4, 1fr); }
-        }
-    </style>
+/* Terminal */
+#term-wrap { position: fixed; bottom: 30px; right: 30px; width: 450px; height: 350px; background: rgba(5,5,5,0.95); border: 1px solid var(--orange); z-index: 20000; display: flex; flex-direction: column; transform: translateY(calc(100% + 50px)); transition: 0.5s var(--ease); }
+#term-wrap.open { transform: translateY(0); }
+.term-header { padding: 10px; background: var(--orange); color: #000; font-family: var(--font-mono); font-size: 11px; font-weight: 900; display: flex; justify-content: space-between; }
+#term-out { flex: 1; padding: 15px; overflow-y: auto; font-family: var(--font-mono); font-size: 12px; color: var(--orange); line-height: 1.4; }
+.term-in { background: transparent; border: none; border-top: 1px solid var(--orange-dim); padding: 15px; color: #fff; font-family: var(--font-mono); }
+
+/* Stats */
+.stats-bar { display: flex; gap: 30px; margin-bottom: 40px; }
+.stat-item { font-family: var(--font-mono); }
+.stat-val { font-size: 1.5rem; color: var(--orange); font-weight: 900; display: block; }
+
+/* Ads Container */
+.ad-container { margin: 25px 0; text-align: center; }
+
+/* Mobile */
+@media (max-width: 768px) { * { cursor: auto !important; } #c-dot, #c-ring { display: none; } #term-wrap { width: 100%; right: 0; bottom: 0; height: 50%; } }
+@media (min-width: 2500px) { html { font-size: 24px; } .tier-grid { grid-template-columns: repeat(4, 1fr); } }
+</style>
 </head>
 <body>
 
@@ -108,6 +91,13 @@
         <div class="stat-item"><span class="stat-val" id="lvl-val">1</span>USER_LEVEL</div>
         <div class="stat-item"><span class="stat-val" id="node-val">0</span>ACTIVE_NODES</div>
     </div>
+
+    <!-- AdSense Banner -->
+    <div class="ad-container">
+        <!-- Replace ca-pub-XXXX/YYY with your AdSense code -->
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXX" data-ad-slot="YYYY" data-ad-format="auto"></ins>
+    </div>
+
     <div class="tier-grid" id="grid-container"></div>
 </main>
 
@@ -122,167 +112,116 @@
     <input type="text" class="term-in" placeholder="ENTER COMMAND (HELP)...">
 </div>
 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDwkqu_JpelnceEjwbdP76hzwQ1JMFI2D0",
-        authDomain: "loupa-d2ca2.firebaseapp.com",
-        projectId: "loupa-d2ca2",
-        storageBucket: "loupa-d2ca2.firebasestorage.app",
-        messagingSenderId: "1062889452519",
-        appId: "1:1062889452519:web:a412e262ba0981d3c3c342"
-    };
+const firebaseConfig = { apiKey:"AIzaSyDwkqu_JpelnceEjwbdP76hzwQ1JMFI2D0", authDomain:"loupa-d2ca2.firebaseapp.com", projectId:"loupa-d2ca2", storageBucket:"loupa-d2ca2.firebasestorage.app", messagingSenderId:"1062889452519", appId:"1:1062889452519:web:a412e262ba0981d3c3c342" };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+const Core = {
+    user: null,
+    m:{x:0,y:0}, t:{x:0,y:0},
 
-    // --- CORE ENGINE ---
-    const Core = {
-        user: null,
-        m: {x:0, y:0}, t: {x:0, y:0},
-        
-        init() {
-            this.setupGrid();
-            this.setupCanvas();
-            this.setupCursor();
-            this.setupTerminal();
-            this.handleAuth();
-            this.log("LOUPA NEPTUNE v30.0 ONLINE.");
-        },
+    init() { this.setupGrid(); this.setupCanvas(); this.setupCursor(); this.setupTerminal(); this.handleAuth(); this.log("LOUPA NEPTUNE v30.1 ONLINE."); },
 
-        setupGrid() {
-            const nodes = [
-                { id: 'n1', n: 'Code_Architect', d: 'Simplify complex JS/Python logic into readable modules.', l: 1 },
-                { id: 'n2', n: 'Visual_Flow', d: 'High-speed image and video batch processing.', l: 1 },
-                { id: 'n3', n: 'Trade_Signal', d: 'Real-time crypto and stock analytics dashboard.', l: 2 },
-                { id: 'n4', n: 'Neural_Writer', d: 'AI-assisted copywriting for commercial growth.', l: 2 },
-                { id: 'n5', n: 'Server_Shell', d: 'Deploy full-stack nodes with zero friction.', l: 3 },
-                { id: 'n6', n: 'Vault_Secure', d: 'AES-256 encrypted personal data storage.', l: 3 }
-            ];
-            
-            const container = document.getElementById('grid-container');
-            container.innerHTML = nodes.map(n => `
-                <div class="card ${n.l > 1 ? 'locked' : ''}" id="${n.id}">
-                    <div>
-                        <h2 style="font-weight:900; letter-spacing:-1px;">${n.n}</h2>
-                        <p style="color:var(--text-dim); margin-top:10px; font-size:14px;">${n.d}</p>
-                    </div>
-                    <button class="btn" onclick="Core.executeNode('${n.id}', ${n.l})">Execute Node</button>
+    setupGrid() {
+        const nodes = [
+            { id:'n1', n:'Code_Architect', d:'Simplify complex JS/Python logic.', l:1, price:0 },
+            { id:'n2', n:'Visual_Flow', d:'Batch image/video processing.', l:1, price:0 },
+            { id:'n3', n:'Trade_Signal', d:'Crypto/Stock analytics.', l:2, price:29 },
+            { id:'n4', n:'Neural_Writer', d:'AI copywriting.', l:2, price:49 },
+            { id:'n5', n:'Server_Shell', d:'Full-stack deploy.', l:3, price:199 },
+            { id:'n6', n:'Vault_Secure', d:'Encrypted storage.', l:3, price:299 }
+        ];
+
+        const container = document.getElementById('grid-container');
+        container.innerHTML = nodes.map(n => `
+            <div class="card ${n.l>1?'locked':''}" id="${n.id}">
+                <div>
+                    <h2 style="font-weight:900; letter-spacing:-1px;">${n.n}</h2>
+                    <p style="color:var(--text-dim); margin-top:10px; font-size:14px;">${n.d}</p>
                 </div>
-            `).join('');
-        },
+                ${n.price>0 ? `<div style="margin:10px 0;"><strong>$${n.price}</strong></div>` : ''}
+                <button class="btn" onclick="Core.executeNode('${n.id}', ${n.l}, ${n.price})">${n.l>1?'BUY/EXECUTE':'EXECUTE'}</button>
 
-        view(v) {
-            document.querySelectorAll('.viewport').forEach(x => x.classList.remove('active'));
-            document.getElementById(`view-${v}`).classList.add('active');
-        },
+                <!-- Optional Affiliate Banner for L1 nodes -->
+                ${n.l===1?`<div class="ad-container">
+                    <a href="https://example.com?ref=YOURID" target="_blank">
+                        <img src="https://via.placeholder.com/300x100?text=Affiliate+Banner" alt="Affiliate"/>
+                    </a>
+                </div>`:''}
+            </div>
+        `).join('');
+    },
 
-        async executeNode(id, lvl) {
-            if(!this.user) return this.log("ERROR: Connect Identity to execute nodes.");
-            this.log(`Attempting execution: ${id}...`);
-            await updateDoc(doc(db, "users", this.user.uid), {
-                xp: increment(50),
-                actions: increment(1)
-            });
-            this.log(`Node ${id} synchronized successfully. +50XP`);
-        },
-
-        // --- AUTH & USER DATA ---
-        handleAuth() {
-            const btn = document.getElementById('auth-btn');
-            btn.onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
-
-            onAuthStateChanged(auth, async (u) => {
-                if(u) {
-                    this.user = u;
-                    btn.innerText = u.displayName.split(' ')[0].toUpperCase();
-                    this.syncUser(u);
-                }
-            });
-        },
-
-        async syncUser(u) {
-            const ref = doc(db, "users", u.uid);
-            const snap = await getDoc(ref);
-            if(!snap.exists()) {
-                await setDoc(ref, { xp: 0, level: 1, actions: 0, name: u.displayName });
-            }
-            onSnapshot(ref, (doc) => {
-                const d = doc.data();
-                document.getElementById('xp-val').innerText = d.xp;
-                document.getElementById('lvl-val').innerText = Math.floor(d.xp / 1000) + 1;
-                document.getElementById('node-val').innerText = d.actions;
-            });
-        },
-
-        // --- TERMINAL SYSTEM ---
-        setupTerminal() {
-            const input = document.querySelector('.term-in');
-            input.onkeydown = (e) => {
-                if(e.key === 'Enter') {
-                    this.processCommand(input.value);
-                    input.value = '';
-                }
-            };
-        },
-
-        log(msg) {
-            const out = document.getElementById('term-out');
-            out.innerHTML += `<div><span style="color:#666">>></span> ${msg}</div>`;
-            out.scrollTop = out.scrollHeight;
-        },
-
-        processCommand(cmd) {
-            const c = cmd.toLowerCase().trim();
-            if(c === 'help') this.log("Available: help, status, clear, levelup, unlock_pro");
-            else if(c === 'clear') document.getElementById('term-out').innerHTML = '';
-            else if(c === 'status') this.log(`SYSTEM: OK | USER: ${this.user ? this.user.displayName : 'GUEST'}`);
-            else this.log(`COMMAND_NOT_FOUND: ${c}`);
-        },
-
-        toggleTerm() { document.getElementById('term-wrap').classList.toggle('open'); },
-
-        // --- VISUALS ---
-        setupCursor() {
-            const dot = document.getElementById('c-dot');
-            const ring = document.getElementById('c-ring');
-            window.onmousemove = e => { this.m.x = e.clientX; this.m.y = e.clientY; };
-            const tick = () => {
-                this.t.x += (this.m.x - this.t.x) * 0.2;
-                this.t.y += (this.m.y - this.t.y) * 0.2;
-                dot.style.transform = `translate(${this.m.x}px, ${this.m.y}px)`;
-                ring.style.left = `${this.t.x}px`; ring.style.top = `${this.t.y}px`;
-                requestAnimationFrame(tick);
-            };
-            tick();
-        },
-
-        setupCanvas() {
-            const c = document.getElementById('canvas-bg');
-            const x = c.getContext('2d');
-            let w, h, p = [];
-            const resize = () => { w = c.width = window.innerWidth; h = c.height = window.innerHeight; };
-            window.onresize = resize; resize();
-            for(let i=0; i<60; i++) p.push({x: Math.random()*w, y: Math.random()*h, s: Math.random()*0.5+0.1});
-            const draw = () => {
-                x.clearRect(0,0,w,h);
-                x.fillStyle = "rgba(255, 85, 0, 0.2)";
-                p.forEach(i => {
-                    i.y -= i.s; if(i.y < 0) i.y = h;
-                    x.fillRect(i.x, i.y, 1.5, 1.5);
-                });
-                requestAnimationFrame(draw);
-            };
-            draw();
+    executeNode(id,lvl,price) {
+        if(!this.user) return this.log("ERROR: Connect ID first.");
+        if(lvl>1 && price>0) { 
+            this.log(`Premium Node: $${price} - Payment required (implement Stripe/PayPal link here)`); 
+            return; 
         }
-    };
+        updateDoc(doc(db,"users",this.user.uid),{ xp: increment(50), actions: increment(1) });
+        this.log(`Node ${id} executed! +50XP`);
+    },
 
-    window.Core = Core;
-    Core.init();
+    view(v) { document.querySelectorAll('.viewport').forEach(x=>x.classList.remove('active')); document.getElementById(`view-${v}`).classList.add('active'); },
+
+    handleAuth() {
+        const btn = document.getElementById('auth-btn');
+        btn.onclick = () => signInWithPopup(auth,new GoogleAuthProvider());
+        onAuthStateChanged(auth,u=>{
+            if(u) { this.user=u; btn.innerText=u.displayName.split(' ')[0].toUpperCase(); this.syncUser(u); }
+        });
+    },
+
+    async syncUser(u) {
+        const ref = doc(db,"users",u.uid);
+        const snap = await getDoc(ref);
+        if(!snap.exists()) await setDoc(ref,{ xp:0, level:1, actions:0, name:u.displayName });
+        onSnapshot(ref,d=>{ const data=d.data(); document.getElementById('xp-val').innerText=data.xp; document.getElementById('lvl-val').innerText=Math.floor(data.xp/1000)+1; document.getElementById('node-val').innerText=data.actions; });
+    },
+
+    setupTerminal() {
+        const input=document.querySelector('.term-in');
+        input.onkeydown=e=>{ if(e.key==='Enter'){ this.processCommand(input.value); input.value=''; } };
+    },
+
+    processCommand(cmd) {
+        const c = cmd.toLowerCase().trim();
+        if(c==='help') this.log("Available: help, status, clear, levelup, unlock_pro");
+        else if(c==='clear') document.getElementById('term-out').innerHTML='';
+        else if(c==='status') this.log(`SYSTEM: OK | USER: ${this.user?this.user.displayName:'GUEST'}`);
+        else this.log(`COMMAND_NOT_FOUND: ${c}`);
+    },
+
+    toggleTerm() { document.getElementById('term-wrap').classList.toggle('open'); },
+
+    log(msg) { const out=document.getElementById('term-out'); out.innerHTML+=`<div><span style="color:#666">>></span> ${msg}</div>`; out.scrollTop=out.scrollHeight; },
+
+    setupCursor() {
+        const dot=document.getElementById('c-dot'); const ring=document.getElementById('c-ring');
+        window.onmousemove=e=>{ this.m.x=e.clientX; this.m.y=e.clientY; };
+        const tick=()=>{ this.t.x+=(this.m.x-this.t.x)*0.2; this.t.y+=(this.m.y-this.t.y)*0.2; dot.style.transform=`translate(${this.m.x}px,${this.m.y}px)`; ring.style.left=`${this.t.x}px`; ring.style.top=`${this.t.y}px`; requestAnimationFrame(tick); }; tick();
+    },
+
+    setupCanvas() {
+        const c=document.getElementById('canvas-bg'); const x=c.getContext('2d'); let w,h,p=[];
+        const resize=()=>{ w=c.width=window.innerWidth; h=c.height=window.innerHeight; };
+        window.onresize=resize; resize();
+        for(let i=0;i<60;i++) p.push({x:Math.random()*w,y:Math.random()*h,s:Math.random()*0.5+0.1});
+        const draw=()=>{ x.clearRect(0,0,w,h); x.fillStyle="rgba(255,85,0,0.2)"; p.forEach(i=>{ i.y-=i.s; if(i.y<0)i.y=h; x.fillRect(i.x,i.y,1.5,1.5); }); requestAnimationFrame(draw); };
+        draw();
+    }
+};
+
+window.Core=Core; Core.init();
+(adsbygoogle=window.adsbygoogle||[]).push({});
 </script>
 </body>
 </html>
