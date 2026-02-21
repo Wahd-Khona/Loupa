@@ -2,149 +2,130 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LOUPA // APEX v25.0</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>LOUPA // NEPTUNE v30.0</title>
+    <meta name="theme-color" content="#ff5500">
+    <meta name="description" content="LOUPA: The Ultimate Web Task Orchestrator. Simplified, Professional, High-Performance.">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;900&family=JetBrains+Mono:wght@100;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg: #030303;
-            --surface: #0a0a0a;
-            --accent: #00ffa3; /* Default: Mint */
-            --text-main: #ffffff;
-            --text-dim: #6b6b6b;
-            --border: rgba(255,255,255,0.08);
+            --orange: #ff5500; --orange-dim: #772200;
+            --bg: #000000; --surface: #0a0a0a;
+            --text: #ffffff; --text-dim: #666666;
+            --font-main: 'Space Grotesk', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
-            --glitch-speed: 0.2s;
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Theme Overrides */
-        body.theme-amber { --accent: #ffb400; }
-        body.theme-magenta { --accent: #ff00ff; }
-        body.theme-cyan { --accent: #00d1ff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
+        body { background: var(--bg); color: var(--text); font-family: var(--font-main); overflow-x: hidden; scroll-behavior: smooth; }
+        
+        /* Cursor System */
+        #c-dot, #c-ring { position: fixed; pointer-events: none; z-index: 999999; border-radius: 50%; top:0; left:0; }
+        #c-dot { width: 5px; height: 5px; background: #fff; }
+        #c-ring { width: 35px; height: 35px; border: 1px solid var(--orange); transform: translate(-50%, -50%); transition: width 0.3s var(--ease), border-color 0.3s; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; user-select: none; }
-        @media (pointer: coarse) { * { cursor: auto !important; } #cursor-container { display: none; } }
-
-        body { 
-            background: var(--bg); color: var(--text-main); 
-            font-family: 'Inter', sans-serif; overflow-x: hidden;
-            transition: background 0.5s ease;
-        }
-
-        /* --- UI COMPONENTS --- */
-        #cursor-dot { position: fixed; width: 4px; height: 4px; background: #fff; z-index: 200000; pointer-events: none; border-radius: 50%; }
-        #cursor-ring { position: fixed; width: 30px; height: 30px; border: 1px solid var(--accent); z-index: 199999; pointer-events: none; border-radius: 50%; transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s, border-color 0.3s; }
-
-        nav {
-            position: fixed; top: 0; width: 100%; height: 70px;
+        /* Navigation */
+        nav { 
+            position: fixed; top: 0; width: 100%; height: 80px; z-index: 10000;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 5%; z-index: 10000; background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);
+            padding: 0 4%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,85,0,0.1);
         }
+        .brand { font-weight: 900; font-size: 1.5rem; letter-spacing: -2px; }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
 
-        .view-section { display: none; padding: 100px 5% 50px; min-height: 100vh; }
-        .view-section.active { display: block; animation: fadeIn 0.4s ease-out; }
+        /* Dashboard Tiers */
+        .viewport { min-height: 100vh; padding: 120px 4% 60px; display: none; }
+        .viewport.active { display: block; animation: slideUp 0.6s var(--ease); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- DASHBOARD & CARDS --- */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 40px; }
-        .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; text-align: center; }
-        .stat-card h4 { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
-        .stat-card p { font-size: 24px; font-weight: 900; color: var(--accent); }
-
-        .node-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .node { 
-            background: var(--surface); border: 1px solid var(--border); padding: 25px;
-            display: flex; flex-direction: column; justify-content: space-between;
-            transition: 0.3s; position: relative; overflow: hidden;
+        .tier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+        .card { 
+            background: var(--surface); border: 1px solid rgba(255,255,255,0.05); 
+            padding: 30px; position: relative; transition: 0.4s var(--ease); 
+            display: flex; flex-direction: column; justify-content: space-between; min-height: 380px;
         }
-        .node:hover { border-color: var(--accent); transform: translateY(-5px); }
-        .node::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent); opacity: 0.3; }
+        .card:hover { border-color: var(--orange); transform: translateY(-8px); background: #0f0f0f; }
+        .card.locked { opacity: 0.6; filter: grayscale(1); }
+        .card.locked::after { content: "LOCKED // LVL 2+"; position: absolute; top: 10px; right: 10px; font-family: var(--font-mono); font-size: 10px; color: var(--orange); }
 
-        .btn {
-            background: var(--accent); color: #000; border: none; padding: 12px;
-            font-family: var(--font-mono); font-weight: 700; width: 100%;
-            margin-top: 15px; transition: 0.2s;
+        .btn { 
+            background: var(--orange); color: #000; border: none; padding: 15px 25px; 
+            font-family: var(--font-mono); font-weight: 900; text-transform: uppercase; 
+            width: 100%; transition: 0.2s;
         }
-        .btn:hover { filter: brightness(1.2); }
-        .btn:active { transform: scale(0.96); }
-        .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+        .btn:hover { background: #fff; transform: scale(1.02); }
+        .btn:active { transform: scale(0.98); }
 
-        /* --- TERMINAL --- */
-        #term-window {
-            position: fixed; bottom: 30px; right: 30px; width: 400px; height: 300px;
-            background: rgba(0,0,0,0.9); border: 1px solid var(--border);
-            z-index: 15000; display: flex; flex-direction: column;
-            transform: translateY(120%); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        /* Hyper-Terminal */
+        #term-wrap { 
+            position: fixed; bottom: 30px; right: 30px; width: 450px; height: 350px; 
+            background: rgba(5,5,5,0.95); border: 1px solid var(--orange); z-index: 20000;
+            display: flex; flex-direction: column; transform: translateY(calc(100% + 50px)); transition: 0.5s var(--ease);
         }
-        #term-window.open { transform: translateY(0); }
-        .term-header { padding: 8px 15px; background: #111; font-family: var(--font-mono); font-size: 10px; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); }
-        #term-body { flex: 1; padding: 15px; font-family: var(--font-mono); font-size: 11px; color: var(--accent); overflow-y: auto; }
-        .term-input { background: transparent; border: none; border-top: 1px solid var(--border); padding: 10px; color: #fff; font-family: var(--font-mono); }
+        #term-wrap.open { transform: translateY(0); }
+        .term-header { padding: 10px; background: var(--orange); color: #000; font-family: var(--font-mono); font-size: 11px; font-weight: 900; display: flex; justify-content: space-between; }
+        #term-out { flex: 1; padding: 15px; overflow-y: auto; font-family: var(--font-mono); font-size: 12px; color: var(--orange); line-height: 1.4; }
+        .term-in { background: transparent; border: none; border-top: 1px solid var(--orange-dim); padding: 15px; color: #fff; font-family: var(--font-mono); }
 
-        /* --- UTILITIES --- */
-        .glitch-text { font-family: 'Space Grotesk'; font-weight: 900; }
-        .badge { font-size: 9px; padding: 2px 6px; border: 1px solid var(--accent); color: var(--accent); margin-left: 10px; }
+        /* Stats Bar */
+        .stats-bar { display: flex; gap: 30px; margin-bottom: 40px; }
+        .stat-item { font-family: var(--font-mono); }
+        .stat-val { font-size: 1.5rem; color: var(--orange); font-weight: 900; display: block; }
+
+        /* Mobile / TV Adaptations */
+        @media (max-width: 768px) {
+            * { cursor: auto !important; }
+            #c-dot, #c-ring { display: none; }
+            #term-wrap { width: 100%; right: 0; bottom: 0; height: 50%; }
+        }
+        @media (min-width: 2500px) { /* Smart TV 4K */
+            html { font-size: 24px; }
+            .tier-grid { grid-template-columns: repeat(4, 1fr); }
+        }
     </style>
 </head>
-<body class="theme-mint">
+<body>
 
-<div id="cursor-container">
-    <div id="cursor-dot"></div>
-    <div id="cursor-ring"></div>
-</div>
-
-<canvas id="bg-canvas" style="position:fixed; inset:0; z-index:-1; opacity:0.2;"></canvas>
+<canvas id="canvas-bg" style="position:fixed; inset:0; z-index:-1;"></canvas>
+<div id="c-dot" aria-hidden="true"></div>
+<div id="c-ring" aria-hidden="true"></div>
 
 <nav>
-    <div class="glitch-text" style="font-size: 20px;">LOUPA<span style="color:var(--accent)">.</span></div>
-    <div style="display:flex; gap:15px; align-items:center;">
-        <button onclick="APP.setView('market')" class="f-btn" style="background:none; border:none; color:inherit; font-family:var(--font-mono); font-size:11px;">MARKET</button>
-        <button onclick="APP.setView('dash')" id="nav-dash" class="f-btn" style="background:none; border:none; color:inherit; font-family:var(--font-mono); font-size:11px; display:none;">DASHBOARD</button>
-        <button id="auth-trigger" class="btn" style="width:auto; margin:0; padding:8px 15px;">LOGIN</button>
+    <div class="brand">LOUPA<span style="color:var(--orange)">_NEPTUNE</span></div>
+    <div class="nav-links">
+        <button onclick="Core.view('dash')" class="btn" style="width:auto; font-size:10px; background:none; border:1px solid var(--orange); color:var(--orange);">DASHBOARD</button>
+        <button onclick="Core.toggleTerm()" class="btn" style="width:auto; font-size:10px;">TERMINAL</button>
+        <button id="auth-btn" class="btn" style="width:auto; font-size:10px; background:#fff;">CONNECT_ID</button>
     </div>
 </nav>
 
-<section id="view-market" class="view-section active">
-    <header style="margin-bottom:50px;">
-        <h1 style="font-size: clamp(2rem, 8vw, 5rem); line-height:0.9;">ASSET_INJECTION<br><span style="color:var(--accent)">PROTOCOL.</span></h1>
-    </header>
-    <div id="market-grid" class="node-grid"></div>
-</section>
-
-<section id="view-dash" class="view-section">
-    <h2 style="font-family:var(--font-mono); margin-bottom:30px;">// USER_PROFILE_OVERRIDE</h2>
-    <div class="stats-grid">
-        <div class="stat-card"><h4>Identity</h4><p id="user-name">GHOST</p></div>
-        <div class="stat-card"><h4>Tier</h4><p id="user-tier">BASIC</p></div>
-        <div class="stat-card"><h4>XP</h4><p id="user-xp">0</p></div>
-        <div class="stat-card"><h4>Deployments</h4><p id="user-count">0</p></div>
+<main id="view-dash" class="viewport active">
+    <div class="stats-bar">
+        <div class="stat-item"><span class="stat-val" id="xp-val">0</span>XP_EARNED</div>
+        <div class="stat-item"><span class="stat-val" id="lvl-val">1</span>USER_LEVEL</div>
+        <div class="stat-item"><span class="stat-val" id="node-val">0</span>ACTIVE_NODES</div>
     </div>
-    
-    <div style="margin-top:50px;">
-        <h3 style="margin-bottom:20px;">Theme Configuration</h3>
-        <div style="display:flex; gap:10px;">
-            <button onclick="APP.setTheme('mint')" style="width:30px; height:30px; background:#00ffa3; border:none;"></button>
-            <button onclick="APP.setTheme('amber')" style="width:30px; height:30px; background:#ffb400; border:none;"></button>
-            <button onclick="APP.setTheme('magenta')" style="width:30px; height:30px; background:#ff00ff; border:none;"></button>
-            <button onclick="APP.setTheme('cyan')" style="width:30px; height:30px; background:#00d1ff; border:none;"></button>
-        </div>
-    </div>
-</section>
+    <div class="tier-grid" id="grid-container"></div>
+</main>
 
-<div id="term-window">
-    <div class="term-header"><span>LOUPA_CORE_v25</span><span onclick="APP.toggleTerm()">[—]</span></div>
-    <div id="term-body"></div>
-    <input type="text" class="term-input" placeholder="Type 'help' for commands...">
+<main id="view-acc" class="viewport">
+    <h1>PROFILE_OVERRIDE</h1>
+    <div id="profile-details"></div>
+</main>
+
+<div id="term-wrap">
+    <div class="term-header"><span>LOUPA_NEPTUNE_TERMINAL</span><span onclick="Core.toggleTerm()">[X]</span></div>
+    <div id="term-out"></div>
+    <input type="text" class="term-in" placeholder="ENTER COMMAND (HELP)...">
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDwkqu_JpelnceEjwbdP76hzwQ1JMFI2D0",
@@ -159,163 +140,149 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // --- GLOBAL APP STATE ---
-    window.APP = {
+    // --- CORE ENGINE ---
+    const Core = {
         user: null,
-        cursor: { m: {x:0, y:0}, t: {x:0, y:0} },
-
-        async init() {
-            this.setupMarket();
+        m: {x:0, y:0}, t: {x:0, y:0},
+        
+        init() {
+            this.setupGrid();
+            this.setupCanvas();
             this.setupCursor();
             this.setupTerminal();
-            this.listenAuth();
-            this.drawCanvas();
+            this.handleAuth();
+            this.log("LOUPA NEPTUNE v30.0 ONLINE.");
         },
 
-        setView(viewId) {
-            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(`view-${viewId}`).classList.add('active');
-        },
-
-        setTheme(theme) {
-            document.body.className = `theme-${theme}`;
-            localStorage.setItem('loupa_theme', theme);
-        },
-
-        setupMarket() {
-            const assets = [
-                { id: 'a1', n: 'Bio_Gen', d: 'Neural-linked social bio generation.', t: 'FREE' },
-                { id: 'a2', n: 'Auth_Plug', d: 'Enterprise Firebase security middleware.', t: 'PRO' },
-                { id: 'a3', n: 'Nexus_Arch', d: 'Full-stack Next.js deployment cloud.', t: 'ARCH' }
+        setupGrid() {
+            const nodes = [
+                { id: 'n1', n: 'Code_Architect', d: 'Simplify complex JS/Python logic into readable modules.', l: 1 },
+                { id: 'n2', n: 'Visual_Flow', d: 'High-speed image and video batch processing.', l: 1 },
+                { id: 'n3', n: 'Trade_Signal', d: 'Real-time crypto and stock analytics dashboard.', l: 2 },
+                { id: 'n4', n: 'Neural_Writer', d: 'AI-assisted copywriting for commercial growth.', l: 2 },
+                { id: 'n5', n: 'Server_Shell', d: 'Deploy full-stack nodes with zero friction.', l: 3 },
+                { id: 'n6', n: 'Vault_Secure', d: 'AES-256 encrypted personal data storage.', l: 3 }
             ];
-            const grid = document.getElementById('market-grid');
-            grid.innerHTML = assets.map(a => `
-                <div class="node">
+            
+            const container = document.getElementById('grid-container');
+            container.innerHTML = nodes.map(n => `
+                <div class="card ${n.l > 1 ? 'locked' : ''}" id="${n.id}">
                     <div>
-                        <span style="font-family:var(--font-mono); font-size:9px;">// ID: ${a.id}</span>
-                        <h3 style="margin:10px 0;">${a.n}</h3>
-                        <p style="font-size:12px; color:var(--text-dim);">${a.d}</p>
+                        <h2 style="font-weight:900; letter-spacing:-1px;">${n.n}</h2>
+                        <p style="color:var(--text-dim); margin-top:10px; font-size:14px;">${n.d}</p>
                     </div>
-                    <button onclick="APP.inject('${a.n}')" class="btn ${a.t !== 'FREE' ? 'btn-outline' : ''}">
-                        ${a.t === 'FREE' ? 'INJECT' : 'UPGRADE TO ' + a.t}
-                    </button>
+                    <button class="btn" onclick="Core.executeNode('${n.id}', ${n.l})">Execute Node</button>
                 </div>
             `).join('');
         },
 
-        async inject(name) {
-            if(!this.user) return alert("AUTH_REQUIRED: Connect Identity first.");
-            this.log(`Attempting injection: ${name}...`);
-            await updateDoc(doc(db, "users", this.user.uid), {
-                deployCount: increment(1),
-                xp: increment(10)
-            });
-            this.log(`Success. +10 XP earned.`);
+        view(v) {
+            document.querySelectorAll('.viewport').forEach(x => x.classList.remove('active'));
+            document.getElementById(`view-${v}`).classList.add('active');
         },
 
-        listenAuth() {
-            const btn = document.getElementById('auth-trigger');
-            btn.onclick = () => {
-                const provider = new GoogleAuthProvider();
-                signInWithPopup(auth, provider);
-            };
+        async executeNode(id, lvl) {
+            if(!this.user) return this.log("ERROR: Connect Identity to execute nodes.");
+            this.log(`Attempting execution: ${id}...`);
+            await updateDoc(doc(db, "users", this.user.uid), {
+                xp: increment(50),
+                actions: increment(1)
+            });
+            this.log(`Node ${id} synchronized successfully. +50XP`);
+        },
+
+        // --- AUTH & USER DATA ---
+        handleAuth() {
+            const btn = document.getElementById('auth-btn');
+            btn.onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
 
             onAuthStateChanged(auth, async (u) => {
                 if(u) {
                     this.user = u;
-                    btn.innerText = "LOGOUT";
-                    btn.onclick = () => auth.signOut();
-                    document.getElementById('nav-dash').style.display = 'block';
+                    btn.innerText = u.displayName.split(' ')[0].toUpperCase();
                     this.syncUser(u);
-                } else {
-                    this.user = null;
-                    btn.innerText = "LOGIN";
-                    document.getElementById('nav-dash').style.display = 'none';
-                    this.setView('market');
                 }
             });
         },
 
         async syncUser(u) {
-            const userRef = doc(db, "users", u.uid);
-            const snap = await getDoc(userRef);
+            const ref = doc(db, "users", u.uid);
+            const snap = await getDoc(ref);
             if(!snap.exists()) {
-                await setDoc(userRef, { name: u.displayName, xp: 0, deployCount: 0, tier: 'BASIC' });
+                await setDoc(ref, { xp: 0, level: 1, actions: 0, name: u.displayName });
             }
-            
-            onSnapshot(userRef, (s) => {
-                const data = s.data();
-                document.getElementById('user-name').innerText = data.name.toUpperCase();
-                document.getElementById('user-xp').innerText = data.xp;
-                document.getElementById('user-count').innerText = data.deployCount;
-                document.getElementById('user-tier').innerText = data.tier;
+            onSnapshot(ref, (doc) => {
+                const d = doc.data();
+                document.getElementById('xp-val').innerText = d.xp;
+                document.getElementById('lvl-val').innerText = Math.floor(d.xp / 1000) + 1;
+                document.getElementById('node-val').innerText = d.actions;
             });
         },
 
-        // --- ENGINE ---
+        // --- TERMINAL SYSTEM ---
+        setupTerminal() {
+            const input = document.querySelector('.term-in');
+            input.onkeydown = (e) => {
+                if(e.key === 'Enter') {
+                    this.processCommand(input.value);
+                    input.value = '';
+                }
+            };
+        },
+
+        log(msg) {
+            const out = document.getElementById('term-out');
+            out.innerHTML += `<div><span style="color:#666">>></span> ${msg}</div>`;
+            out.scrollTop = out.scrollHeight;
+        },
+
+        processCommand(cmd) {
+            const c = cmd.toLowerCase().trim();
+            if(c === 'help') this.log("Available: help, status, clear, levelup, unlock_pro");
+            else if(c === 'clear') document.getElementById('term-out').innerHTML = '';
+            else if(c === 'status') this.log(`SYSTEM: OK | USER: ${this.user ? this.user.displayName : 'GUEST'}`);
+            else this.log(`COMMAND_NOT_FOUND: ${c}`);
+        },
+
+        toggleTerm() { document.getElementById('term-wrap').classList.toggle('open'); },
+
+        // --- VISUALS ---
         setupCursor() {
-            const dot = document.getElementById('cursor-dot');
-            const ring = document.getElementById('cursor-ring');
-            window.onmousemove = (e) => { this.cursor.m.x = e.clientX; this.cursor.m.y = e.clientY; };
+            const dot = document.getElementById('c-dot');
+            const ring = document.getElementById('c-ring');
+            window.onmousemove = e => { this.m.x = e.clientX; this.m.y = e.clientY; };
             const tick = () => {
-                this.cursor.t.x += (this.cursor.m.x - this.cursor.t.x) * 0.15;
-                this.cursor.t.y += (this.cursor.m.y - this.cursor.t.y) * 0.15;
-                dot.style.left = this.cursor.m.x + 'px'; dot.style.top = this.cursor.m.y + 'px';
-                ring.style.left = this.cursor.t.x + 'px'; ring.style.top = this.cursor.t.y + 'px';
+                this.t.x += (this.m.x - this.t.x) * 0.2;
+                this.t.y += (this.m.y - this.t.y) * 0.2;
+                dot.style.transform = `translate(${this.m.x}px, ${this.m.y}px)`;
+                ring.style.left = `${this.t.x}px`; ring.style.top = `${this.t.y}px`;
                 requestAnimationFrame(tick);
             };
             tick();
         },
 
-        setupTerminal() {
-            const input = document.querySelector('.term-input');
-            input.onkeydown = (e) => {
-                if(e.key === 'Enter') {
-                    const cmd = input.value.toLowerCase().trim();
-                    this.exec(cmd);
-                    input.value = '';
-                }
+        setupCanvas() {
+            const c = document.getElementById('canvas-bg');
+            const x = c.getContext('2d');
+            let w, h, p = [];
+            const resize = () => { w = c.width = window.innerWidth; h = c.height = window.innerHeight; };
+            window.onresize = resize; resize();
+            for(let i=0; i<60; i++) p.push({x: Math.random()*w, y: Math.random()*h, s: Math.random()*0.5+0.1});
+            const draw = () => {
+                x.clearRect(0,0,w,h);
+                x.fillStyle = "rgba(255, 85, 0, 0.2)";
+                p.forEach(i => {
+                    i.y -= i.s; if(i.y < 0) i.y = h;
+                    x.fillRect(i.x, i.y, 1.5, 1.5);
+                });
+                requestAnimationFrame(draw);
             };
-            this.log("LOUPA_OS v25 initialized. Type 'help' for available protocols.");
-        },
-
-        log(msg) {
-            const body = document.getElementById('term-body');
-            body.innerHTML += `<div>> ${msg}</div>`;
-            body.scrollTop = body.scrollHeight;
-        },
-
-        exec(cmd) {
-            if(cmd === 'help') this.log("Commands: help, clear, status, dash, market, theme [color]");
-            else if(cmd === 'clear') document.getElementById('term-body').innerHTML = '';
-            else if(cmd === 'status') this.log(`SYS: OK | USER: ${this.user ? this.user.displayName : 'ANON'} | LATENCY: 24ms`);
-            else if(cmd === 'dash') this.setView('dash');
-            else if(cmd === 'market') this.setView('market');
-            else if(cmd.startsWith('theme ')) this.setTheme(cmd.split(' ')[1]);
-            else this.log(`ERR: Unknown command '${cmd}'`);
-        },
-
-        toggleTerm() { document.getElementById('term-window').classList.toggle('open'); },
-
-        drawCanvas() {
-            const c = document.getElementById('bg-canvas');
-            const ctx = c.getContext('2d');
-            let w = c.width = window.innerWidth, h = c.height = window.innerHeight;
-            window.onresize = () => { w = c.width = window.innerWidth; h = c.height = window.innerHeight; };
-            const p = Array.from({length: 50}, () => ({x: Math.random()*w, y: Math.random()*h, s: Math.random()*0.5}));
-            const render = () => {
-                ctx.clearRect(0,0,w,h); ctx.fillStyle = "rgba(255,255,255,0.05)";
-                p.forEach(i => { i.y -= i.s; if(i.y < 0) i.y = h; ctx.fillRect(i.x, i.y, 1, 1); });
-                requestAnimationFrame(render);
-            };
-            render();
+            draw();
         }
     };
 
-    APP.init();
-    // Persistence setup
-    setPersistence(auth, browserLocalPersistence);
+    window.Core = Core;
+    Core.init();
 </script>
-
 </body>
 </html>
