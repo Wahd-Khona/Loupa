@@ -3,45 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>LOUPA // APEX_v21.0_PRECISION</title>
+<title>LOUPA // APEX_v22.0_EZ_VOLUME</title>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;900&family=JetBrains+Mono:wght@100;700&display=swap" rel="stylesheet">
 <style>
-:root { --bg: #000; --surface: #040404; --accent: #f50; --lazy: #08f; --ghost: #b0f; --success: #0fa; --border: rgba(255,85,0,0.2); --font-mono: 'JetBrains Mono', monospace; }
+:root { --bg: #000; --surface: #050505; --accent: #f50; --ez: #00ffaa; --border: rgba(255,255,255,0.05); --font-mono: 'JetBrains Mono', monospace; }
 * { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; user-select: none; outline: none; }
-body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; width: 100vw; height: 100vh; }
-body::after { content: " "; display: block; position: fixed; inset: 0; background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%), linear-gradient(90deg, rgba(255,0,0,0.03), rgba(0,255,0,0.01), rgba(0,0,255,0.03)); z-index: 999999; background-size: 100% 2px, 3px 100%; pointer-events: none; }
-#bg-canvas { position: fixed; inset: 0; z-index: -1; opacity: 0.4; }
-#boot-seq { position: fixed; inset: 0; background: #000; z-index: 30000; display: flex; flex-direction: column; padding: 40px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--success); }
+body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; width: 100vw; }
+body::after { content: " "; display: block; position: fixed; inset: 0; background: linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.2) 50%), linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,255,0,0.01), rgba(0,0,255,0.02)); z-index: 999999; background-size: 100% 4px, 4px 100%; pointer-events: none; }
+#bg-canvas { position: fixed; inset: 0; z-index: -1; opacity: 0.3; }
+#boot-seq { position: fixed; inset: 0; background: #000; z-index: 30000; display: flex; flex-direction: column; padding: 40px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--ez); }
 #gate-keeper { position: fixed; inset: 0; background: #000; z-index: 20000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-.glitch { font-family: 'Space Grotesk'; font-size: clamp(3rem, 10vw, 6rem); font-weight: 900; text-shadow: 3px 0 red, -3px 0 blue; animation: g 1s infinite alternate; }
-@keyframes g { 0% { clip-path: inset(10% 0 30% 0); transform: skew(-3deg); } 100% { clip-path: inset(40% 0 10% 0); transform: skew(3deg); } }
-#term-os { position: fixed; top: 120px; left: 40px; width: 450px; height: 550px; background: rgba(2,2,2,0.95); border: 1px solid var(--accent); z-index: 10000; display: flex; flex-direction: column; transform: scale(0.9); opacity: 0; transition: 0.3s; pointer-events: none; }
+.glitch { font-family: 'Space Grotesk'; font-size: clamp(3rem, 10vw, 6rem); font-weight: 900; letter-spacing: -2px; text-shadow: 2px 0 #f50, -2px 0 #00ffaa; }
+#term-os { position: fixed; top: 120px; left: 40px; width: 400px; height: 500px; background: rgba(0,0,0,0.9); border: 1px solid var(--ez); z-index: 10000; display: flex; flex-direction: column; transform: scale(0.9); opacity: 0; transition: 0.2s; pointer-events: none; }
 #term-os.visible { transform: scale(1); opacity: 1; pointer-events: all; }
-#term-bar { padding: 12px; background: var(--accent); color: #000; font-family: var(--font-mono); font-weight: 900; font-size: 0.7rem; display: flex; justify-content: space-between; cursor: move !important; }
-#term-content { flex: 1; overflow-y: auto; padding: 20px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--success); }
-#term-input-field { background: #000; border: none; border-top: 1px solid var(--accent); color: #fff; padding: 15px; font-family: var(--font-mono); }
-#sys-log { position: fixed; bottom: 30px; right: 30px; width: 300px; font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent); pointer-events: none; z-index: 8000; text-align: right; }
-nav { position: fixed; top: 0; width: 100%; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; z-index: 5000; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--border); }
-.brand { font-family: 'Space Grotesk'; font-size: 1.6rem; font-weight: 900; }
-.grid-matrix { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-top: 50px; }
-.node { background: var(--surface); border: 1px solid var(--border); padding: 40px; display: flex; flex-direction: column; justify-content: space-between; min-height: 450px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-.node:hover { border-color: #fff; background: #080808; transform: translateY(-5px); }
-.node.lazy { border-left: 4px solid var(--lazy); }
-.node.ghost { border-left: 4px solid var(--ghost); }
-.node.pro { border-left: 4px solid var(--accent); }
-.node h3 { font-family: 'Space Grotesk'; font-size: 2.2rem; font-weight: 900; margin: 20px 0; }
-.node p { color: #666; font-size: 0.9rem; line-height: 1.6; }
-.btn { background: var(--accent); color: #000; border: none; padding: 20px; font-family: var(--font-mono); font-weight: 900; text-transform: uppercase; width: 100%; transition: 0.2s; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-.btn:active { transform: scale(0.96); }
-.btn-lazy { background: transparent; border: 1px solid var(--lazy); color: var(--lazy); }
-.btn-ghost { background: transparent; border: 1px solid var(--ghost); color: var(--ghost); }
-#cursor-dot { position: fixed; width: 4px; height: 4px; background: #fff; z-index: 2000000; pointer-events: none; border-radius: 50%; }
-#cursor-ring { position: fixed; width: 30px; height: 30px; border: 1px solid var(--accent); z-index: 1999999; pointer-events: none; border-radius: 50%; transition: width 0.3s, height 0.3s, background 0.3s; transform: translate(-50%, -50%); }
-.cursor-hover #cursor-ring { width: 50px; height: 50px; background: rgba(255,85,0,0.1); border-color: #fff; }
-.reveal { opacity: 0; transform: translateY(30px); transition: 0.6s ease-out; }
+#term-bar { padding: 10px; background: var(--ez); color: #000; font-family: var(--font-mono); font-weight: 900; font-size: 0.7rem; display: flex; justify-content: space-between; cursor: move !important; }
+#term-content { flex: 1; overflow-y: auto; padding: 15px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--ez); }
+#term-input-field { background: #000; border: none; border-top: 1px solid var(--ez); color: #fff; padding: 15px; font-family: var(--font-mono); width: 100%; }
+nav { position: fixed; top: 0; width: 100%; height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 4%; z-index: 5000; background: rgba(0,0,0,0.9); border-bottom: 1px solid var(--border); }
+.grid-matrix { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 40px; }
+.node { background: var(--surface); border: 1px solid var(--border); padding: 30px; display: flex; flex-direction: column; justify-content: space-between; min-height: 320px; transition: 0.2s; }
+.node:hover { border-color: var(--ez); background: #0a0a0a; transform: translateY(-3px); }
+.node h3 { font-family: 'Space Grotesk'; font-size: 1.5rem; font-weight: 900; margin-bottom: 10px; color: var(--ez); }
+.node p { color: #666; font-size: 0.85rem; line-height: 1.5; }
+.btn { background: var(--ez); color: #000; border: none; padding: 15px; font-family: var(--font-mono); font-weight: 900; text-transform: uppercase; width: 100%; margin-top: 20px; transition: 0.1s; }
+.btn:active { transform: scale(0.95); background: #fff; }
+#cursor-dot { position: fixed; width: 5px; height: 5px; background: #fff; z-index: 2000000; pointer-events: none; border-radius: 50%; }
+#cursor-ring { position: fixed; width: 35px; height: 35px; border: 1px solid var(--ez); z-index: 1999999; pointer-events: none; border-radius: 50%; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s; }
+.cursor-hover #cursor-ring { width: 55px; height: 55px; background: rgba(0,255,170,0.1); }
+.reveal { opacity: 0; transform: translateY(20px); transition: 0.5s ease-out; }
 .reveal.active { opacity: 1; transform: translateY(0); }
 </style>
 </head>
@@ -50,28 +42,18 @@ nav { position: fixed; top: 0; width: 100%; height: 80px; display: flex; align-i
 <div id="cursor-dot"></div>
 <div id="cursor-ring"></div>
 <div id="boot-seq"><div id="boot-text"></div></div>
-<div id="gate-keeper">
-<h1 class="glitch">LOUPA.</h1>
-<button onclick="L.auth()" class="btn" style="width:250px; margin-top:40px;">CONNECT_LINK</button>
-</div>
+<div id="gate-keeper"><h1 class="glitch">LOUPA.</h1><button onclick="L.auth()" class="btn" style="width:200px;">START</button></div>
 <div id="term-os">
-<div id="term-bar" onmousedown="L.drag(event)"><span>TERMINAL_ROOT</span><span onclick="L.toggleT()">[X]</span></div>
+<div id="term-bar" onmousedown="L.drag(event)"><span>EZ_ACCESS_SHELL</span><span onclick="L.toggleT()">[X]</span></div>
 <div id="term-content"></div>
 <input type="text" id="term-input-field" autocomplete="off">
 </div>
-<div id="sys-log"></div>
-<nav>
-<div class="brand">LOUPA.</div>
-<div style="display:flex; gap:30px;">
-<span class="mono" onclick="L.toggleT()" style="font-size:0.7rem; color:var(--success); border:1px solid var(--success); padding:5px 10px;">SHELL</span>
-<span id="u-id" class="mono" style="font-size:0.7rem; color:#444;">ID_NULL</span>
-</div>
-</nav>
-<main id="main-os" style="display:none; padding-top:100px;">
-<section class="container" style="padding: 100px 5%;">
+<nav><div class="brand" style="font-weight:900; font-family:'Space Grotesk';">LOUPA.</div><div class="mono" onclick="L.toggleT()" style="color:var(--ez); font-size:0.7rem; border:1px solid var(--ez); padding:5px 10px;">TERMINAL</div></nav>
+<main id="main-os" style="display:none; padding-top:80px;">
+<section class="container" style="padding: 60px 4%;">
 <div class="reveal">
-<h1 class="glitch" style="font-size: 8vw;">PRECISION.</h1>
-<p style="max-width:600px; color:#555; margin-top:20px;">v21.0: Zero latency cursor engine. Snap-to-target button physics. 100% Execution density.</p>
+<h2 style="font-family:'Space Grotesk'; font-size: 3rem; font-weight:900;">QUICK_ASSETS</h2>
+<p style="color:#444; margin-top:10px;" class="mono">High-volume, zero-friction deployment. 24 Nodes Online.</p>
 </div>
 <div class="grid-matrix" id="grid"></div>
 </section>
@@ -80,24 +62,35 @@ nav { position: fixed; top: 0; width: 100%; height: 80px; display: flex; align-i
 const L=(()=>{
 firebase.initializeApp({apiKey:"AIzaSyDwkqu_JpelnceEjwbdP76hzwQ1JMFI2D0",authDomain:"loupa-d2ca2.firebaseapp.com",projectId:"loupa-d2ca2",storageBucket:"loupa-d2ca2.firebasestorage.app",messagingSenderId:"1062889452519",appId:"1:1062889452519:web:a412e262ba0981d3c3c342"});
 const db=firebase.firestore(),auth=firebase.auth(),actx=new AudioContext();
-const A=[{n:"Kernel Colors",c:"LAZY",p:0},{n:"Social Mesh",c:"LAZY",p:0},{n:"Email Gate",c:"LAZY",p:0},{n:"SaaS Base",c:"PRO",p:499},{n:"Data Leech",c:"PRO",p:300},{n:"Ghost API",c:"GHOST",p:1200},{n:"Void Link",c:"GHOST",p:2500}];
+const A=[
+{n:"Bio Writer",d:"AI-optimized social bios."}, {n:"Color Gen",d:"Instant hex brand palettes."},
+{n:"Logo Mock",d:"Fast SVG placeholder logos."}, {n:"Font Pair",d:"Typography stacks for web."},
+{n:"Icon Pack",d:"50+ Minimalist UI icons."}, {n:"Email Template",d:"One-click cold reach HTML."},
+{n:"SEO Tags",d:"Meta description generators."}, {n:"CSS Reset",d:"Clean slate for new builds."},
+{n:"JS Snippet",d:"Scroll-to-reveal logic."}, {n:"Favicon Kit",d:"Multi-size browser icons."},
+{n:"Sitemap Gen",d:"XML crawler generators."}, {n:"ReadMe Pro",d:"GitHub profile templates."},
+{n:"Gradient Kit",d:"Mesh background CSS code."}, {n:"Button UI",d:"Library of hover effects."},
+{n:"Form Logic",d:"Simple JS validation."}, {n:"Data Table",d:"Responsive CSS table kit."},
+{n:"Proxy List",d:"Rotating public endpoints."}, {n:"Markdown Pro",d:"Easy documentation styles."},
+{n:"Web Font",d:"Speed-optimized font-face."}, {n:"API Mock",d:"JSON data for testing."},
+{n:"Image Edit",d:"Browser-based crop logic."}, {n:"Hash Gen",d:"Quick MD5/Bcrypt strings."},
+{n:"Link Short",d:"Clean URL redirection."}, {n:"Bot Filter",d:"Simple honeypot scripts."}
+];
 let dO=null,oX=0,oY=0,m={x:0,y:0},t={x:0,y:0};
-const bP=f=>{const o=actx.createOscillator(),g=actx.createGain();o.type='square';o.frequency.value=f;g.gain.setTargetAtTime(0.05,actx.currentTime,0.01);o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+0.05);};
+const bP=f=>{if(actx.state==='suspended')actx.resume();const o=actx.createOscillator(),g=actx.createGain();o.type='sine';o.frequency.value=f;g.gain.setTargetAtTime(0.02,actx.currentTime,0.01);o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+0.05);};
 return {
-auth(){bP(800);auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(r=>{document.getElementById('gate-keeper').style.display='none';document.getElementById('main-os').style.display='block';document.getElementById('u-id').innerText=`OP_${r.user.displayName.toUpperCase()}`;this.start();});},
-toggleT(){bP(1000);document.getElementById('term-os').classList.toggle('visible');},
+auth(){bP(600);auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(()=>{document.getElementById('gate-keeper').style.display='none';document.getElementById('main-os').style.display='block';this.start();});},
+toggleT(){bP(800);document.getElementById('term-os').classList.toggle('visible');},
 drag(e){dO=document.getElementById('term-os');oX=e.clientX-dO.getBoundingClientRect().left;oY=e.clientY-dO.getBoundingClientRect().top;},
 start(){
-db.collection("global_chat").orderBy("ts","desc").limit(15).onSnapshot(s=>{document.getElementById('term-content').innerHTML=s.docs.reverse().map(d=>`<div>> ${d.data().text}</div>`).join('');});
-document.getElementById('term-input-field').onkeydown=e=>{if(e.key==='Enter'&&e.target.value){db.collection("global_chat").add({text:e.target.value,ts:firebase.firestore.FieldValue.serverTimestamp()});e.target.value='';bP(600);}};
-document.getElementById('grid').innerHTML=A.map(a=>`<div class="node ${a.c.toLowerCase()} reveal"><div><span class="mono" style="font-size:0.6rem; color:var(--accent);">// ${a.c}</span><h3>${a.n}</h3><p>Secure deployment ready. Encrypted at REST.</p></div><div style="margin-top:30px;"><div class="mono" style="font-size:1.8rem; margin-bottom:15px;">${a.p===0?'FREE':'$'+a.p}</div><button class="btn ${a.c==='LAZY'?'btn-lazy':(a.c==='GHOST'?'btn-ghost':'')}" onmouseenter="L.hov(1)" onmouseleave="L.hov(0)">DEPLOY</button></div></div>`).join('');
-this.log();this.reveal();
+db.collection("global_chat").orderBy("ts","desc").limit(10).onSnapshot(s=>{document.getElementById('term-content').innerHTML=s.docs.reverse().map(d=>`<div>> ${d.data().text}</div>`).join('');});
+document.getElementById('term-input-field').onkeydown=e=>{if(e.key==='Enter'&&e.target.value){db.collection("global_chat").add({text:e.target.value,ts:firebase.firestore.FieldValue.serverTimestamp()});e.target.value='';bP(400);}};
+document.getElementById('grid').innerHTML=A.map(a=>`<div class="node reveal"><div><h3>${a.n}</h3><p>${a.d}</p></div><button class="btn" onmouseenter="L.h(1)" onmouseleave="L.h(0)">GET ASSET</button></div>`).join('');
+const o=new IntersectionObserver(e=>e.forEach(i=>{if(i.isIntersecting)i.target.classList.add('active');}));document.querySelectorAll('.reveal').forEach(e=>o.observe(e));
 },
-hov(s){s?document.body.classList.add('cursor-hover'):document.body.classList.remove('cursor-hover');if(s)bP(400);},
-log(){setInterval(()=>{const l=document.getElementById('sys-log'),d=document.createElement('div');d.innerText=`> EVT_${Math.random().toString(16).slice(2,8).toUpperCase()}_OK`;l.prepend(d);if(l.children.length>5)l.lastChild.remove();},2000);},
-reveal(){const o=new IntersectionObserver(e=>e.forEach(i=>{if(i.isIntersecting)i.target.classList.add('active');}));document.querySelectorAll('.reveal').forEach(e=>o.observe(e));},
+h(s){s?document.body.classList.add('cursor-hover'):document.body.classList.remove('cursor-hover');if(s)bP(300);},
 tick(){
-t.x+=(m.x-t.x)*0.15;t.y+=(m.y-t.y)*0.15;
+t.x+=(m.x-t.x)*0.2;t.y+=(m.y-t.y)*0.2;
 document.getElementById('cursor-dot').style.transform=`translate(${m.x}px, ${m.y}px)`;
 document.getElementById('cursor-ring').style.left=t.x+'px';document.getElementById('cursor-ring').style.top=t.y+'px';
 if(dO){dO.style.left=(m.x-oX)+'px';dO.style.top=(m.y-oY)+'px';}
@@ -106,14 +99,13 @@ requestAnimationFrame(()=>this.tick());
 setM(e){m.x=e.clientX;m.y=e.clientY;}
 };})();
 window.onload=()=>{
-const tX=document.getElementById('boot-text');const seq=["LOADING LOUPA_OS...","GATHERING NODES...","HARDWARE_ACCELERATION: ON","READY."];
-let i=0;const iv=setInterval(()=>{if(i<seq.length){tX.innerHTML+=seq[i]+"<br>";i++;}else{clearInterval(iv);document.getElementById('boot-seq').style.display='none';document.getElementById('gate-keeper').style.display='flex';}},300);
+const tX=document.getElementById('boot-text');const seq=["OS_V22.0_LOAD","GATHERING_EZ_NODES...","24_ASSETS_DETECTED","SYSTEM_READY."];
+let i=0;const iv=setInterval(()=>{if(i<seq.length){tX.innerHTML+=seq[i]+"<br>";i++;}else{clearInterval(iv);document.getElementById('boot-seq').style.display='none';document.getElementById('gate-keeper').style.display='flex';}},200);
 window.onmousemove=e=>L.setM(e);
-window.onclick=()=>L.beep?L.beep(200):null;
 L.tick();
 const c=document.getElementById('bg-canvas'),x=c.getContext('2d');c.width=window.innerWidth;c.height=window.innerHeight;
-let p=Array.from({length:50},()=>({x:Math.random()*c.width,y:Math.random()*c.height,s:Math.random()*1+0.5}));
-function d(){x.clearRect(0,0,c.width,c.height);x.fillStyle='rgba(255,85,0,0.4)';p.forEach(i=>{i.y-=i.s;if(i.y<0)i.y=c.height;x.fillRect(i.x,i.y,1,1);});requestAnimationFrame(d);}d();
+let p=Array.from({length:40},()=>({x:Math.random()*c.width,y:Math.random()*c.height,s:Math.random()*0.5}));
+function d(){x.clearRect(0,0,c.width,c.height);x.fillStyle='rgba(0,255,170,0.2)';p.forEach(i=>{i.y-=i.s;if(i.y<0)i.y=c.height;x.fillRect(i.x,i.y,1,1);});requestAnimationFrame(d);}d();
 };
 </script>
 </body>
